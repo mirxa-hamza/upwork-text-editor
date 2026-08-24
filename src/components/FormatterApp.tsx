@@ -1,13 +1,22 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import Link from 'next/link';
 import Editor, { type EditorHandle } from './Editor';
 import Toolbar from './Toolbar';
 import PreviewPane from './PreviewPane';
 import CopyButton from './CopyButton';
 import Icon from './Icon';
+import Logo from './Logo';
 import { convertEditorHtmlToUpworkText } from '@/lib/formatConverter';
 
+/**
+ * The full /editor workspace. Deliberately locked to exactly 100vh with no
+ * page-level scrolling: the header and instruction bar take only the height
+ * their content needs (shrink-0), and the editor/preview panels below them
+ * absorb all remaining space (flex-1 min-h-0) and scroll internally instead
+ * of pushing the page taller.
+ */
 export default function FormatterApp() {
   const editorRef = useRef<EditorHandle>(null);
   const [convertedText, setConvertedText] = useState('');
@@ -28,61 +37,90 @@ export default function FormatterApp() {
   };
 
   return (
-    <section id="formatter" className="scroll-mt-20">
-      <div className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col overflow-hidden rounded-xl bg-surface-elevated shadow-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-variant bg-surface-container-lowest px-4 py-3 sm:px-6">
-            <Toolbar
-              onBold={() => editorRef.current?.exec('bold')}
-              onItalic={() => editorRef.current?.exec('italic')}
-              onUnderline={() => editorRef.current?.exec('underline')}
-              onBullet={() => editorRef.current?.exec('insertUnorderedList')}
-              onNumbered={() => editorRef.current?.exec('insertOrderedList')}
-              onLink={handleLink}
+    <div className="flex h-screen flex-col overflow-hidden bg-surface">
+      {/* Minimal nav — natural height only */}
+      <header className="shrink-0 border-b border-outline-variant bg-surface-container-lowest">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <Logo />
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
+          >
+            <Icon name="arrow_back" className="text-[18px]" />
+            Back to Home
+          </Link>
+        </div>
+      </header>
+
+      {/* Instruction bar — natural height only */}
+      <div className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-2 sm:px-6">
+        <p className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-2 gap-y-1 text-xs text-on-surface-variant">
+          <span className="font-semibold text-on-surface">Shortcuts:</span>
+          <span>
+            <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+B</kbd> bold
+          </span>
+          <span>
+            <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+I</kbd> italic
+          </span>
+          <span>
+            <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+U</kbd> underline
+          </span>
+          <span className="text-on-surface-variant/60">·</span>
+          <span>
+            Or type <code className="rounded bg-surface-container-lowest px-1 py-0.5">**bold**</code>,{' '}
+            <code className="rounded bg-surface-container-lowest px-1 py-0.5">_italic_</code>,{' '}
+            <code className="rounded bg-surface-container-lowest px-1 py-0.5">~underline~</code>,{' '}
+            <code className="rounded bg-surface-container-lowest px-1 py-0.5">- </code> or{' '}
+            <code className="rounded bg-surface-container-lowest px-1 py-0.5">1. </code> as you go.
+          </span>
+        </p>
+      </div>
+
+      {/* Toolbar row — natural height only */}
+      <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 border-b border-outline-variant bg-surface-container-lowest px-4 py-3 sm:px-6">
+        <Toolbar
+          onBold={() => editorRef.current?.exec('bold')}
+          onItalic={() => editorRef.current?.exec('italic')}
+          onUnderline={() => editorRef.current?.exec('underline')}
+          onBullet={() => editorRef.current?.exec('insertUnorderedList')}
+          onNumbered={() => editorRef.current?.exec('insertOrderedList')}
+          onLink={handleLink}
+        />
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={handleClear}
+            className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-error"
+          >
+            <Icon name="delete" className="text-[18px]" />
+            Clear
+          </button>
+          <CopyButton text={convertedText} />
+        </div>
+      </div>
+
+      {/* Dual-panel workspace — absorbs all remaining height, scrolls internally */}
+      <div className="flex flex-1 min-h-0 flex-col divide-y divide-outline-variant md:flex-row md:divide-x md:divide-y-0">
+        <div className="flex flex-1 min-h-0 flex-col p-4 sm:p-6">
+          <span className="mb-2 block shrink-0 text-sm font-semibold text-on-surface-variant">Editor</span>
+          <div className="flex-1 min-h-0">
+            <Editor
+              ref={editorRef}
+              onChange={handleEditorChange}
+              placeholder="Type or paste your text — select it and use the toolbar, or type **bold**, _italic_, ~underline~, '- ' or '1. '…"
             />
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-error"
-              >
-                <Icon name="delete" className="text-[18px]" />
-                Clear
-              </button>
-              <CopyButton text={convertedText} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 divide-y divide-surface-variant md:grid-cols-2 md:divide-x md:divide-y-0">
-            <div className="p-4 sm:p-6">
-              <span className="mb-2 block text-sm font-semibold text-on-surface-variant">Editor</span>
-              <Editor
-                ref={editorRef}
-                onChange={handleEditorChange}
-                placeholder="Type or paste your text — select it and use the toolbar, or type **bold**, _italic_, ~underline~, '- ' or '1. '…"
-              />
-            </div>
-
-            <div className="bg-surface-container-lowest p-4 sm:p-6">
-              <span className="mb-2 block text-sm font-semibold text-on-surface-variant">
-                Preview — this is exactly what pastes into Upwork
-              </span>
-              <PreviewPane text={convertedText} />
-            </div>
           </div>
         </div>
 
-        <p className="mx-auto mt-4 max-w-3xl text-center text-xs text-on-surface-variant">
-          Works in job posts, proposals, and messages. Tip: typing{' '}
-          <code className="rounded bg-surface-container px-1 py-0.5">**bold**</code>,{' '}
-          <code className="rounded bg-surface-container px-1 py-0.5">_italic_</code>,{' '}
-          <code className="rounded bg-surface-container px-1 py-0.5">~underline~</code>, or starting a line with{' '}
-          <code className="rounded bg-surface-container px-1 py-0.5">- </code> /{' '}
-          <code className="rounded bg-surface-container px-1 py-0.5">1. </code> auto-formats as you type. Underline uses a
-          Unicode combining character — always double-check it renders correctly in the specific field you&apos;re pasting
-          into.
-        </p>
+        <div className="flex flex-1 min-h-0 flex-col bg-surface-container-lowest p-4 sm:p-6">
+          <span className="mb-2 block shrink-0 text-sm font-semibold text-on-surface-variant">
+            Preview — this is exactly what pastes into Upwork
+          </span>
+          <div className="flex-1 min-h-0">
+            <PreviewPane text={convertedText} />
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }

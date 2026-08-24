@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, type KeyboardEvent } from 'react';
 import { matchInlineShortcut, matchBlockShortcut } from '@/lib/markdownShortcuts';
 
 const BLOCK_TAG_NAMES = new Set(['DIV', 'P', 'LI']);
@@ -134,12 +134,34 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
     notify();
   };
 
+  // Shared by the imperative `exec` handle and the Ctrl/Cmd+B/I/U keyboard
+  // shortcuts below, so both paths run the exact same focus/execCommand/sync
+  // sequence.
+  const runCommand = (command: string, value?: string) => {
+    divRef.current?.focus();
+    document.execCommand(command, false, value);
+    notify();
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    // Support both Ctrl (Windows/Linux) and Cmd (Mac) as the modifier.
+    if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey) return;
+
+    const key = e.key.toLowerCase();
+    if (key === 'b') {
+      e.preventDefault();
+      runCommand('bold');
+    } else if (key === 'i') {
+      e.preventDefault();
+      runCommand('italic');
+    } else if (key === 'u') {
+      e.preventDefault();
+      runCommand('underline');
+    }
+  };
+
   useImperativeHandle(ref, () => ({
-    exec: (command, value) => {
-      divRef.current?.focus();
-      document.execCommand(command, false, value);
-      notify();
-    },
+    exec: (command, value) => runCommand(command, value),
     insertLink: (url) => {
       const container = divRef.current;
       const selection = window.getSelection();
@@ -194,6 +216,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
       contentEditable
       suppressContentEditableWarning
       onInput={handleInput}
+      onKeyDown={handleKeyDown}
       onPaste={(e) => {
         // Always paste as plain text. The whole point of this tool is that
         // *this* toolbar controls formatting — letting Word/Google Docs
@@ -204,7 +227,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
         notify();
       }}
       data-placeholder={placeholder}
-      className="h-full min-h-[420px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-upwork-green empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-upwork-green [&_a]:underline"
+      className="h-full w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-brand empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-brand [&_a]:underline [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5 [&_li]:my-0.5"
     />
   );
 });

@@ -1,6 +1,5 @@
 import NavBar from '@/components/NavBar';
 import Hero from '@/components/Hero';
-import FormatterApp from '@/components/FormatterApp';
 import WhyFormat from '@/components/WhyFormat';
 import HowItWorks from '@/components/HowItWorks';
 import Faq from '@/components/Faq';
@@ -12,7 +11,6 @@ export default function Home() {
       <NavBar />
       <main className="pt-16">
         <Hero />
-        <FormatterApp />
         <WhyFormat />
         <HowItWorks />
         <Faq />

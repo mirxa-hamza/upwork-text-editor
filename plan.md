@@ -89,11 +89,13 @@ upwork-text-formatter/
 ├── TESTING.md                     # research + live Upwork test results (§7)
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx              # metadata, Inter font, Material Symbols stylesheet link
-│   │   ├── page.tsx                # composes NavBar/Hero/FormatterApp/WhyFormat/HowItWorks/Faq/Footer
-│   │   └── globals.css             # Tailwind entry + the ported color palette (§5.1)
+│   │   ├── layout.tsx              # metadata, Poppins font, Material Symbols stylesheet link
+│   │   ├── page.tsx                # landing route: NavBar/Hero/WhyFormat/HowItWorks/Faq/Footer
+│   │   ├── editor/
+│   │   │   └── page.tsx            # editor route: renders FormatterApp (§5.3)
+│   │   └── globals.css             # Tailwind entry + the color palette (§5.1, §5.3)
 │   ├── components/
-│   │   ├── FormatterApp.tsx        # the actual tool: editor card, state, Unicode conversion
+│   │   ├── FormatterApp.tsx        # the /editor workspace: nav, instructions, toolbar, dual panel
 │   │   ├── Toolbar.tsx             # Bold/Italic/Underline/Bullet/Numbered/Link icon buttons
 │   │   ├── Editor.tsx              # contentEditable box, execCommand + Markdown-shortcut glue
 │   │   ├── PreviewPane.tsx         # shows converted Unicode text
@@ -153,6 +155,81 @@ that. The page was rebuilt around it:
   no "Sign In" button or Privacy Policy/Terms of Service links (the assignment explicitly
   rules out accounts, and this project has no real legal pages to link to — a placeholder
   link would be dishonest).
+
+### 5.2 Rebrand + motion + footer (added after user feedback)
+
+The first pass ported the mockup's own green Material palette and reused several of its
+headings/card copy near-verbatim ("Bold for skills," "Highlight & Format," etc.) — on review
+this read as a copy of the reference rather than its own thing, so:
+
+- **New palette, not the mockup's**: `globals.css`'s `@theme` block was replaced with an
+  indigo-accent, true-neutral-slate scale (`--color-brand: #4f46e5` instead of Upwork's
+  `#14a800` green, `--color-on-surface-variant` etc. re-based on Tailwind's slate scale
+  instead of the mockup's green-tinted Material grays). Every `bg-upwork-green` /
+  `text-upwork-green` / `text-on-primary` usage across the components was renamed to
+  `bg-brand` / `text-brand` / `text-on-brand` to match.
+- **All section copy rewritten**: headlines, badge text, the 6 `WhyFormat` card
+  titles/descriptions, the 3 `HowItWorks` step titles/descriptions, and all 6 FAQ questions
+  were reworded from scratch rather than lightly edited from the mockup's wording — same
+  underlying facts, different sentences.
+- **Smooth scrolling**: `html { scroll-behavior: smooth }` in `globals.css` — nav bar and
+  footer anchor links now glide to their section instead of jumping instantly.
+- **Scroll-in animation**: a small `Reveal.tsx` client component wraps the `WhyFormat` cards,
+  `HowItWorks` steps, and `Faq` items — each fades and slides up the first time it scrolls
+  into view, staggered per item, via one `IntersectionObserver` and a CSS transition (no
+  animation library added). Respects `prefers-reduced-motion`. The hero and the editor card
+  itself are intentionally left un-animated since they're already on-screen on load.
+- **Footer restyled dark**: `bg-slate-950` with a light wordmark (`Logo` gained a `light`
+  prop) and a `© {year} Upwork Text Formatter. All rights reserved.` line, per request,
+  instead of the previous light footer.
+
+### 5.3 Landing / editor page split + Poppins + Upwork-green theme (added after user request)
+
+The tool was originally a single page — hero, then the editor card embedded directly below
+it, then the marketing sections. The user asked for a cleaner separation: a marketing landing
+page at `/` that explains the tool and funnels into a dedicated, distraction-free `/editor`
+page for actually doing the work.
+
+- **Font**: swapped `Inter` → **Poppins** via `next/font/google` in `layout.tsx`. Poppins
+  isn't a variable font on Google Fonts, so it needs an explicit `weight` array
+  (`["300","400","500","600","700","800"]`) rather than the single variable-font declaration
+  `Inter` used. `globals.css`'s `@theme inline` block now points `--font-sans` at
+  `--font-poppins` instead of `--font-inter`.
+- **Color**: `--color-brand` reverted from the indigo `#4f46e5` chosen in §5.2 back to
+  **Upwork Green `#14a800`** (`--color-brand-dark: #0a6e00` for hover states) per the user's
+  explicit hex value — this is a values-only change; the token names (`brand`/`brand-dark`/
+  `on-brand`) are untouched, so no component className renames were needed. The §5.2 copy
+  rewrite (headlines, card text, FAQ answers) is unaffected and stays as-is — only the accent
+  color moved, not the wording. Surfaces stay on the existing white/slate scale, satisfying
+  "clean white/slate background... deep charcoal/slate for text" without changes.
+- **`app/page.tsx` (landing)**: now composes `NavBar → Hero → WhyFormat → HowItWorks → Faq →
+  Footer` — `FormatterApp` (the editor) was removed from this tree entirely. `Hero.tsx` gained
+  a subheadline using the user's exact requested phrase ("Format text that actually works in
+  Upwork proposals and messages") and two CTAs: a primary **"Open Editor"** button
+  (`next/link` to `/editor`) and a secondary "See how it works" anchor link. `NavBar.tsx` also
+  gained an always-visible "Open Editor" button, and its old `#formatter` anchor link was
+  replaced with a `#why-format` link to the (newly `id`'d) `WhyFormat` section instead, since
+  there's no editor card on this page anymore.
+- **`app/editor/page.tsx` (new route)**: a thin route file that sets editor-specific metadata
+  and renders `FormatterApp`. `FormatterApp.tsx` was rewritten in place (same filename/export,
+  so no orphaned file) to be the entire workspace rather than a card on the landing page:
+  - **Strict 100vh, no page scroll**: outer wrapper is `flex h-screen flex-col overflow-hidden`.
+  - **Fixed-height rows** (`shrink-0`): a minimal header (wordmark + a "Back to Home" link to
+    `/`), an instruction bar spelling out both the keyboard shortcuts and the Markdown-typing
+    shortcuts, and the toolbar row (formatting buttons + Clear/Copy) — each sized to its
+    content only.
+  - **Flexible dual panel**: the Editor/Preview row is `flex flex-1 min-h-0` (`flex-col` on
+    mobile, `md:flex-row` on desktop, divided by a border either way) so it absorbs all
+    leftover height below the fixed rows. Each panel is itself `flex flex-1 min-h-0 flex-col`
+    around its label + content, and both `Editor.tsx` and `PreviewPane.tsx` had their old fixed
+    `min-h-[420px]` removed (that fixed minimum would have fought the new flex-driven sizing
+    and reintroduced page-level overflow) in favor of `h-full` + `overflow-y-auto`, so long
+    text scrolls *inside* the panel instead of growing the page. The `min-h-0` overrides are
+    necessary because flex children default to `min-height: auto`, which otherwise ignores
+    `flex-1` and lets content overflow instead of triggering the intended internal scrollbar.
+  - `Logo.tsx` switched from a same-page `href="#top"` anchor to a real `next/link` to `/`, and
+    `NavBar.tsx` / `Footer.tsx`'s "Editor" links now point at `/editor` instead of `#formatter`
+    — all of these needed updating once the editor became a real separate route.
 
 ## 6. Editor behavior
 
@@ -219,6 +296,31 @@ Design:
   Node-only unit tests in `markdownShortcuts.test.ts` — it needs a real browser to verify,
   pending the user re-testing locally after this fix.
 
+### 6.2 Keyboard shortcuts + list-visibility bug fix (added with the §5.3 page split)
+
+- **Ctrl/Cmd+B/I/U keyboard shortcuts**: previously the toolbar and the Markdown-shorthand
+  typing were the only ways to format text — no keyboard shortcuts were wired up, so the
+  browser's own default for `Ctrl+B`/`Ctrl+U` (bookmark / underline-URL-bar-ish browser chrome
+  behavior) could fire instead. Fixed by adding an `onKeyDown` handler on the `contentEditable`
+  div in `Editor.tsx` that checks `e.ctrlKey || e.metaKey` (Cmd on Mac, Ctrl elsewhere) with
+  no Shift/Alt modifier, calls `e.preventDefault()` immediately so the browser never sees the
+  key combo, then runs the same formatting logic as the toolbar buttons. To guarantee the
+  keyboard path and the toolbar/imperative-handle path can never drift apart, the shared logic
+  was factored into one `runCommand(command, value?)` helper (focus the editor → `execCommand`
+  → re-sync preview state) that both `onKeyDown` and the `exec` method on `EditorHandle` call.
+- **List-visibility bug fix**: Tailwind's preflight reset strips the browser's default
+  `list-style` from every `<ul>`/`<ol>`, so a bulleted/numbered list created via the toolbar,
+  a keyboard shortcut, or Markdown-shorthand typing was structurally correct (and rendered
+  correctly in the plain-text preview pane, which never relied on CSS) but showed **no visible
+  bullet or number markers while actually typing** in the editor itself — confusing, since the
+  list looked like it silently did nothing. Fixed by adding Tailwind arbitrary-variant
+  utilities to the `contentEditable` div's `className`: `[&_ul]:list-disc [&_ul]:ml-5
+  [&_ol]:list-decimal [&_ol]:ml-5 [&_li]:my-0.5`. Uses the `[&_...]` *descendant* selector
+  (matches a `<ul>`/`<ol>` at any nesting depth under the editor) rather than the `[&>...]`
+  *direct-child* selector, since `execCommand('insertUnorderedList')` and the browser's native
+  Enter-to-continue-a-list behavior don't guarantee the list element is always an immediate
+  child of the editor root.
+
 ## 7. Verification plan (maps to the assignment's "Done When" list)
 
 1. **Unit tests** (`src/lib/formatConverter.test.ts`, run via `npx tsx`) — deterministic
@@ -250,6 +352,15 @@ Design:
 8. **(Follow-up, §6.1)** Add Markdown-shorthand typing on top of the toolbar: `markdownShortcuts.ts`
    + its tests, wired into `Editor.tsx`; placeholder/hint text updated so the shortcuts are
    discoverable. Delivered as an update to the same files already on disk.
+9. **(Follow-up, §5.3/§6.2)** Split the single page into `/` (landing) and `/editor`
+   (workspace): new `app/editor/page.tsx`, `FormatterApp.tsx` rewritten in place as the strict
+   h-screen dual-panel workspace, `Hero.tsx`/`NavBar.tsx`/`Footer.tsx`/`Logo.tsx` updated to
+   route between the two pages instead of scrolling to an in-page anchor, `layout.tsx`/
+   `globals.css` switched to Poppins + Upwork Green. Same pass fixed the Ctrl/Cmd+B/I/U
+   keyboard-shortcut gap and the Tailwind list-visibility bug in `Editor.tsx`. `formatConverter.test.ts`
+   and `markdownShortcuts.test.ts` re-run afterward (still 44/44 passing) to confirm none of
+   this touched the pure conversion/shortcut logic. Delivered as updates to the files already
+   on disk plus the two new route files.
 
 ## 9. Explicitly out of scope (per assignment's "Not Needed")
 

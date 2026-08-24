@@ -1,10 +1,11 @@
+import Link from 'next/link';
 import Icon from './Icon';
 import Logo from './Logo';
 
 const NAV_LINKS = [
-  { href: '#formatter', label: 'Formatter' },
-  { href: '#how-it-works', label: 'How It Works' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '/#why-format', label: 'Why Format' },
+  { href: '/#how-it-works', label: 'How It Works' },
+  { href: '/#faq', label: 'FAQ' },
 ];
 
 export default function NavBar() {
@@ -18,7 +19,7 @@ export default function NavBar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-on-surface-variant transition-colors hover:text-upwork-green"
+                className="text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
               >
                 {link.label}
               </a>
@@ -26,11 +27,19 @@ export default function NavBar() {
           </nav>
         </div>
 
-        {/* No login/accounts in this tool (by design) — a quick reassurance
-            takes the place of a Sign In button. */}
-        <div className="hidden items-center gap-2 rounded-full border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface-variant sm:flex">
-          <Icon name="lock" className="text-[16px] text-upwork-green" />
-          Nothing leaves your browser
+        <div className="flex items-center gap-3">
+          {/* No login/accounts in this tool (by design) — a quick reassurance
+              takes the place of a Sign In button. */}
+          <div className="hidden items-center gap-2 rounded-full border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface-variant sm:flex">
+            <Icon name="lock" className="text-[16px] text-brand" />
+            Nothing leaves your browser
+          </div>
+          <Link
+            href="/editor"
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
+          >
+            Open Editor
+          </Link>
         </div>
       </div>
     </header>

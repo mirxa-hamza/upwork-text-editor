@@ -11,7 +11,7 @@ type PreviewPaneProps = {
  */
 export default function PreviewPane({ text }: PreviewPaneProps) {
   return (
-    <div className="h-full min-h-[420px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-subtle p-4 leading-relaxed text-on-surface">
+    <div className="h-full w-full overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-subtle p-4 leading-relaxed text-on-surface">
       {text ? (
         text
       ) : (

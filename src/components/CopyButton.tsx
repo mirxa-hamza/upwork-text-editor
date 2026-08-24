@@ -30,7 +30,7 @@ export default function CopyButton({ text }: CopyButtonProps) {
       type="button"
       onClick={handleCopy}
       disabled={!text}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-upwork-green px-5 text-sm font-semibold text-on-primary shadow-sm transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-on-surface-variant disabled:shadow-none"
+      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-on-surface-variant disabled:shadow-none"
     >
       <Icon name={status === 'copied' ? 'check' : 'content_copy'} filled className="text-[18px]" />
       {label}
