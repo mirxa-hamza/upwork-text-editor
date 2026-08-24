@@ -3,6 +3,7 @@ import FormatterApp from '@/components/FormatterApp';
 import WhyFormat from '@/components/WhyFormat';
 import HowItWorks from '@/components/HowItWorks';
 import Faq from '@/components/Faq';
+import WaitlistSection from '@/components/WaitlistSection';
 import Footer from '@/components/Footer';
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
         <WhyFormat />
         <HowItWorks />
         <Faq />
+        <WaitlistSection />
       </main>
       <Footer />
     </div>
