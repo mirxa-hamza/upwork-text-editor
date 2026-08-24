@@ -1,19 +1,14 @@
-import Link from 'next/link';
 import Icon from './Icon';
 import Logo from './Logo';
 
 const NAV_LINKS = [
-  { href: '/#why-format', label: 'Why Format' },
-  { href: '/#how-it-works', label: 'How It Works' },
-  { href: '/#faq', label: 'FAQ' },
+  { href: '#editor', label: 'Editor' },
+  { href: '#why-format', label: 'Why Format' },
+  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#faq', label: 'FAQ' },
 ];
 
-type NavBarProps = {
-  /** 'landing' (default) shows the "Open Editor" CTA; 'editor' swaps it for "Back to Home" — everything else (size, links, badge) stays identical so the bar doesn't visibly change between pages. */
-  variant?: 'landing' | 'editor';
-};
-
-export default function NavBar({ variant = 'landing' }: NavBarProps) {
+export default function NavBar() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-outline-variant bg-surface-container-lowest">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -32,29 +27,13 @@ export default function NavBar({ variant = 'landing' }: NavBarProps) {
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* No login/accounts in this tool (by design) — a quick reassurance
-              takes the place of a Sign In button. */}
-          <div className="hidden items-center gap-2 rounded-full border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface-variant sm:flex">
-            <Icon name="lock" className="text-[16px] text-brand" />
-            Nothing leaves your browser
-          </div>
-          {variant === 'editor' ? (
-            <Link
-              href="/"
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
-            >
-              <Icon name="arrow_back" className="text-[18px]" />
-              Back to Home
-            </Link>
-          ) : (
-            <Link
-              href="/editor"
-              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
-            >
-              Open Editor
-            </Link>
-          )}
+        {/* No login/accounts in this tool (by design) — a quick reassurance
+            takes the place of a Sign In / CTA button. The editor is right on
+            this page, so there's no separate "Open Editor" button to link
+            to it any more. */}
+        <div className="hidden items-center gap-2 rounded-full border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface-variant sm:flex">
+          <Icon name="lock" className="text-[16px] text-brand" />
+          Nothing leaves your browser
         </div>
       </div>
     </header>

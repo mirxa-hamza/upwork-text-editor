@@ -1,19 +1,13 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
 import NavBar from './NavBar';
 
 /**
- * Rendered once in the root layout (not inside either page) so the nav bar
- * is a single persistent element across client-side navigation between `/`
- * and `/editor` — React's App Router keeps a layout mounted across route
- * changes and only swaps out `children`, so this never unmounts/remounts
- * (and therefore never visibly resizes, flashes, or re-lays-out) the way it
- * would if each page rendered its own copy of <NavBar>. Only the CTA button
- * needs to differ per route, so that's the one thing derived here.
+ * Thin wrapper rendered once in the root layout, above `{children}`, so the
+ * nav bar is a single persistent element rather than something each page
+ * mounts on its own. Back when the app had two routes (`/` and `/editor`)
+ * this also picked the right nav variant per pathname; now that everything
+ * lives on one page, it's just a pass-through — kept as its own file/import
+ * so `layout.tsx` doesn't need touching if that ever changes again.
  */
 export default function SiteNavBar() {
-  const pathname = usePathname();
-  const variant = pathname?.startsWith('/editor') ? 'editor' : 'landing';
-  return <NavBar variant={variant} />;
+  return <NavBar />;
 }

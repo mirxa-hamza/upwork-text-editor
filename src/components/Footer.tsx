@@ -1,10 +1,9 @@
-import Link from 'next/link';
 import Logo from './Logo';
 
 const FOOTER_LINKS = [
-  { href: '/editor', label: 'Editor' },
-  { href: '/#how-it-works', label: 'How It Works' },
-  { href: '/#faq', label: 'FAQ' },
+  { href: '#editor', label: 'Editor' },
+  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#faq', label: 'FAQ' },
 ];
 
 export default function Footer() {
@@ -23,9 +22,9 @@ export default function Footer() {
           </div>
           <div className="flex gap-6">
             {FOOTER_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="text-sm font-medium text-slate-400 transition-colors hover:text-white">
+              <a key={link.href} href={link.href} className="text-sm font-medium text-slate-400 transition-colors hover:text-white">
                 {link.label}
-              </Link>
+              </a>
             ))}
           </div>
         </div>

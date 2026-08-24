@@ -1,11 +1,11 @@
-import type { Metadata } from 'next';
-import FormatterApp from '@/components/FormatterApp';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Editor — Upwork Text Formatter',
-  description: 'Format bold, italic, underline, bullets, numbered lists, and links as plain text that survives pasting into Upwork.',
-};
-
-export default function EditorPage() {
-  return <FormatterApp />;
+/**
+ * The tool used to live at its own /editor route; it's back on the single
+ * landing page now (see app/page.tsx + FormatterApp.tsx), so this route is
+ * kept only as a redirect for anyone who bookmarked or linked to /editor
+ * directly, rather than leaving it as a dead 404.
+ */
+export default function EditorRedirect() {
+  redirect('/#editor');
 }

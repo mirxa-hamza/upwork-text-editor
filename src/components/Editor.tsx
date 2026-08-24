@@ -18,7 +18,7 @@ function closestBlockElement(node: Node, root: HTMLElement): HTMLElement | null 
 
 /**
  * Runs right after every keystroke. Detects the two Markdown-style
- * shortcuts this editor supports — **bold** / _italic_/~underline~ inline,
+ * shortcuts this editor supports — **bold** /_italic_/~underline~ inline,
  * and "- "/"* "/"1. " at the very start of a line — and, on a match,
  * replaces the typed delimiters with real formatting (a <b>/<i>/<u>
  * element, or a native list via execCommand). The actual pattern matching
@@ -321,7 +321,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
         notify();
       }}
       data-placeholder={placeholder}
-      className="h-full w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-brand empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-brand [&_a]:underline [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5 [&_li]:my-0.5"
+      className="h-full min-h-[220px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-brand empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-brand [&_a]:underline [&_ul]:list-disc [&_ul]:ml-5 [&_ol]:list-decimal [&_ol]:ml-5 [&_li]:my-0.5"
     />
   );
 });

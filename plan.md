@@ -281,6 +281,68 @@ navigation rather than two separate instances:
   scroll — removing the remaining source of a viewport-width (and therefore nav-bar-width)
   shift between the scrollable landing page and the fixed-height editor page.
 
+### 5.5 Reverted back to a single page (added per user request)
+
+After living at `/editor` for a few iterations, the user asked for a single-page site again,
+modeled on a reference screenshot (a "Typegrow"-style tool page): nav bar, headline/subhead,
+and the editor all visible together near the top, with the toolbar's shortcut instructions
+sitting *below* the editor card rather than above it. No formatting behavior changed — same
+toolbar buttons, same keyboard shortcuts, same Markdown shorthand, same active-state
+highlighting (§6.3) — this was purely a layout/composition change:
+
+- **`app/page.tsx`** now composes `Hero → FormatterApp → WhyFormat → HowItWorks → Faq →
+  Footer` again, all on one page — same shape as before the §5.3 split.
+- **`FormatterApp.tsx`** went back to being a card embedded on the page (not a standalone
+  `h-screen` route): `section#editor` containing the toolbar row, the dual editor/preview
+  panel, and — the actual layout change requested — the shortcuts/Markdown-shorthand
+  instruction bar moved to *after* the card instead of before it. `Editor.tsx` and
+  `PreviewPane.tsx` got a `min-h-[320px]` back (they'd been stripped of any fixed height in
+  §5.3 to fill a flex-1 viewport-height container that no longer exists here).
+- **`Hero.tsx`** trimmed its vertical padding and dropped the `/editor`-routing CTA buttons —
+  with the editor sitting immediately below the headline again, a separate "Open Editor"
+  button was redundant, and the extra vertical space it took was the opposite of the "nav +
+  hero + editor visible together" goal from the reference screenshot.
+- **`NavBar.tsx`** lost the `variant` prop (no second page to differ from any more); its
+  "Open Editor" button and the new "Editor" nav link both point at `#editor`, an in-page
+  anchor (`FormatterApp`'s `section` has `id="editor" scroll-mt-20`), instead of routing to a
+  separate page. `SiteNavBar.tsx` — the wrapper that renders `NavBar` once from the root
+  layout so it never remounts (§5.4) — is kept, simplified to a plain pass-through, since that
+  still-valid technique (one persistent nav instance) has no reason to change; it just no
+  longer needs `usePathname()`-driven variant logic. `Footer.tsx`'s "Editor" link was updated
+  the same way.
+- **`app/editor/page.tsx`**: rather than leaving a dead route or a 404, this now just calls
+  `redirect('/#editor')` — anyone with the old `/editor` URL bookmarked or linked lands back
+  on the single page, scrolled to the tool. (I don't have a reliable way to delete files from
+  this session, so this file stays on disk as a redirect rather than being removed outright.)
+
+### 5.6 Compacted so the editor fits in the first viewport (added per user feedback)
+
+§5.5 put the editor back on the landing page, but the hero above it was still tall enough
+that the editor card ran past the fold on typical screens — the opposite of the "no need to
+scroll" goal. Trimmed further, purely visual, no formatting behavior touched:
+
+- **`Hero.tsx`** rewritten to match the reference screenshot's proportions: dropped the
+  "No install/No account" badge and the extra marketing paragraph entirely, down to just a
+  short `h1` ("Upwork Text Formatter") and one concise line of subtext, with much smaller
+  top/bottom padding (`pt-8 pb-4` instead of `pt-20/24 pb-8`).
+- **`NavBar.tsx`**: removed the "Open Editor" button per request — with the editor directly
+  below the hero, a button whose only job was to link to it added width/visual weight for no
+  benefit. The "Editor" nav link (`#editor`) is still there for anyone who's scrolled past it.
+- **`FormatterApp.tsx`**: tightened the dual-panel's internal padding (`p-4 sm:p-6` →
+  `p-3 sm:p-4`) and label spacing. `Editor.tsx`/`PreviewPane.tsx`'s `min-h-[320px]` (from
+  §5.5) reduced to `min-h-[220px]` — still comfortably usable, just not taller than it needs
+  to be.
+- **`HowItWorks.tsx`**'s "Three steps, no learning curve" cards lost their box styling
+  (`rounded-xl bg-surface-container-lowest p-8 shadow-sm` removed from each step) per
+  request — the numbered circle, title, and body text now sit directly on the section's
+  background instead of inside a card, with the column gap widened slightly (`gap-8` →
+  `gap-10`) to keep the three steps visually separated without borders.
+- None of this touches `formatConverter.ts`, `unicodeMaps.ts`, `markdownShortcuts.ts`, or any
+  toolbar/keyboard-shortcut logic in `Editor.tsx` — same 44/44 passing after the change. Exact
+  pixel fit still depends on the viewer's screen size/browser chrome (there's no way to
+  guarantee zero scrolling on every device), but the whole nav+hero+editor block is now
+  meaningfully shorter and should fit without scrolling on typical laptop/desktop viewports.
+
 ## 6. Editor behavior
 
 - `contentEditable` div; toolbar buttons call `document.execCommand('bold' | 'italic' |

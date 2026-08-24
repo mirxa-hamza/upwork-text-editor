@@ -31,10 +31,10 @@ export default function HowItWorks() {
           </p>
         </Reveal>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           {STEPS.map((step, index) => (
             <Reveal key={step.number} delayMs={index * 120}>
-              <div className="h-full rounded-xl bg-surface-container-lowest p-8 shadow-sm">
+              <div className="h-full">
                 <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-brand text-lg font-bold text-on-brand">
                   {step.number}
                 </span>
