@@ -1,3 +1,5 @@
+import Icon from './Icon';
+
 type PreviewPaneProps = {
   text: string;
 };
@@ -9,11 +11,14 @@ type PreviewPaneProps = {
  */
 export default function PreviewPane({ text }: PreviewPaneProps) {
   return (
-    <div className="min-h-[280px] w-full whitespace-pre-wrap rounded-lg border border-slate-300 bg-white p-4 text-slate-900 leading-relaxed">
+    <div className="h-full min-h-[420px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-subtle p-4 leading-relaxed text-on-surface">
       {text ? (
         text
       ) : (
-        <span className="text-slate-400">Your formatted text will appear here, ready to paste into Upwork…</span>
+        <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-on-surface-variant/40">
+          <Icon name="preview" className="text-[36px]" />
+          <p className="text-sm font-medium">Your formatted output will appear here.</p>
+        </div>
       )}
     </div>
   );

@@ -89,15 +89,22 @@ upwork-text-formatter/
 ├── TESTING.md                     # research + live Upwork test results (§7)
 ├── src/
 │   ├── app/
-│   │   ├── layout.tsx              # metadata, font, global styles
-│   │   ├── page.tsx                # thin wrapper that renders <FormatterApp />
-│   │   └── globals.css             # Tailwind entry + minor base styles
+│   │   ├── layout.tsx              # metadata, Inter font, Material Symbols stylesheet link
+│   │   ├── page.tsx                # composes NavBar/Hero/FormatterApp/WhyFormat/HowItWorks/Faq/Footer
+│   │   └── globals.css             # Tailwind entry + the ported color palette (§5.1)
 │   ├── components/
-│   │   ├── FormatterApp.tsx        # page state: editor HTML, converted text, layout
-│   │   ├── Toolbar.tsx             # Bold/Italic/Underline/Bullet/Numbered/Link/Clear buttons
-│   │   ├── Editor.tsx              # contentEditable box, wraps execCommand calls
+│   │   ├── FormatterApp.tsx        # the actual tool: editor card, state, Unicode conversion
+│   │   ├── Toolbar.tsx             # Bold/Italic/Underline/Bullet/Numbered/Link icon buttons
+│   │   ├── Editor.tsx              # contentEditable box, execCommand + Markdown-shortcut glue
 │   │   ├── PreviewPane.tsx         # shows converted Unicode text
-│   │   └── CopyButton.tsx          # navigator.clipboard.writeText + "Copied!" state
+│   │   ├── CopyButton.tsx          # navigator.clipboard.writeText + "Copied!" state
+│   │   ├── Icon.tsx                # thin Material Symbols glyph wrapper
+│   │   ├── Logo.tsx                # wordmark used in the nav bar and footer
+│   │   ├── NavBar.tsx              # fixed header: logo, section links, "nothing leaves your browser"
+│   │   ├── Hero.tsx                # headline + subhead above the editor card
+│   │   ├── WhyFormat.tsx           # "why format your text" 6-card feature grid
+│   │   ├── HowItWorks.tsx          # 3-step explanation + the Unicode-trick callout
+│   │   └── Faq.tsx                 # <details>/<summary> accordion, zero JS
 │   └── lib/
 │       ├── formatConverter.ts       # pure: editor HTML string -> Upwork-ready Unicode text
 │       ├── unicodeMaps.ts           # the codepoint tables + toStyledChar() from §4.1/4.2
@@ -111,6 +118,41 @@ a small hand-rolled tokenizer (the editor only ever produces a known, narrow set
 `div, p, br, b, strong, i, em, u, ul, ol, li, a`), so it can be unit-tested with plain
 Node via `tsx` — no jsdom, no Next.js runtime needed. This satisfies the assignment's "keep
 this separate from the UI so it's easy to test."
+
+### 5.1 Page layout & visual design (added after initial build, per user request)
+
+The user shared a professional landing-page mockup (nav bar, hero, styled editor card,
+feature grid, "how it works," FAQ, footer) and asked for the real app to look and read like
+that. The page was rebuilt around it:
+
+- **Palette**: a curated subset of the mockup's color tokens (Upwork's brand green plus a
+  Material-3-style neutral surface scale) was ported into Tailwind v4's CSS-first `@theme`
+  block in `globals.css` — e.g. `--color-upwork-green`, `--color-on-surface-variant`,
+  `--color-surface-container-lowest` — which generates real utilities (`bg-upwork-green`,
+  `text-on-surface-variant`, …) usable across every component. No dark mode (the mockup
+  didn't have one either, and the branded light palette wasn't designed to invert cleanly).
+- **Typography**: switched from the default Geist font to **Inter** via `next/font/google`,
+  matching the mockup, still self-hosted/optimized by Next.js rather than a runtime Google
+  Fonts request.
+- **Icons**: Material Symbols Outlined, loaded once via a `<link>` in `layout.tsx`'s `<head>`
+  (Next.js App Router hoists a `<link>` rendered anywhere in the tree into the document head).
+  No npm icon package — `Icon.tsx` just renders the ligature text the font substitutes for a
+  named glyph, exactly like the mockup did.
+- **Sections, top to bottom**: `NavBar` (fixed, logo + anchor links to the sections below +
+  a "nothing leaves your browser" badge in place of a Sign In button, since this tool has no
+  accounts by design) → `Hero` (headline/subhead) → `FormatterApp` (the real, working tool —
+  restyled as a card that overlaps the hero slightly, toolbar row with icon buttons plus
+  Clear/Copy on the right, two-panel editor/preview body) → `WhyFormat` (6 feature cards, one
+  per formatting type: bold, italic, underline, bullets, numbered lists, links) →
+  `HowItWorks` (3 numbered steps, plus a callout explaining the Unicode substitution trick in
+  plain language) → `Faq` (native `<details>`/`<summary>`, zero JavaScript, answers written
+  to match this project's actual, verified behavior rather than generic marketing claims) →
+  `Footer` (wordmark, one-line privacy note, links back to the sections above).
+- **Deliberate departures from the mockup**: no external hotlinked logo images (replaced with
+  a small self-contained SVG-free wordmark built from Tailwind + a Material Symbols glyph) and
+  no "Sign In" button or Privacy Policy/Terms of Service links (the assignment explicitly
+  rules out accounts, and this project has no real legal pages to link to — a placeholder
+  link would be dishonest).
 
 ## 6. Editor behavior
 

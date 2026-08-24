@@ -1,6 +1,7 @@
 'use client';
 
 import type { MouseEvent } from 'react';
+import Icon from './Icon';
 
 type ToolbarProps = {
   onBold: () => void;
@@ -9,52 +10,63 @@ type ToolbarProps = {
   onBullet: () => void;
   onNumbered: () => void;
   onLink: () => void;
-  onClear: () => void;
 };
 
 const buttonClass =
-  'inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-slate-300 bg-white px-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 active:bg-slate-200';
+  'flex h-9 w-9 items-center justify-center rounded text-on-surface transition-colors hover:bg-surface-container-high';
 
 // Prevents the toolbar button from stealing focus (and clearing the editor's
 // text selection) before its onClick handler runs.
 const preserveSelection = (e: MouseEvent) => e.preventDefault();
 
-export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNumbered, onLink, onClear }: ToolbarProps) {
+export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNumbered, onLink }: ToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 p-2" role="toolbar" aria-label="Text formatting">
-      <button type="button" onMouseDown={preserveSelection} onClick={onBold} className={`${buttonClass} font-bold`} title="Bold" aria-label="Bold">
-        B
+    <div
+      className="flex items-center gap-1 rounded-lg bg-surface-container p-1"
+      role="toolbar"
+      aria-label="Text formatting"
+    >
+      <button type="button" onMouseDown={preserveSelection} onClick={onBold} className={buttonClass} title="Bold" aria-label="Bold">
+        <Icon name="format_bold" />
       </button>
-      <button type="button" onMouseDown={preserveSelection} onClick={onItalic} className={`${buttonClass} italic`} title="Italic" aria-label="Italic">
-        I
+      <button type="button" onMouseDown={preserveSelection} onClick={onItalic} className={buttonClass} title="Italic" aria-label="Italic">
+        <Icon name="format_italic" />
       </button>
-      <button type="button" onMouseDown={preserveSelection} onClick={onUnderline} className={`${buttonClass} underline`} title="Underline" aria-label="Underline">
-        U
+      <button
+        type="button"
+        onMouseDown={preserveSelection}
+        onClick={onUnderline}
+        className={buttonClass}
+        title="Underline"
+        aria-label="Underline"
+      >
+        <Icon name="format_underlined" />
       </button>
 
-      <span className="mx-1 h-5 w-px bg-slate-300" aria-hidden="true" />
-
-      <button type="button" onMouseDown={preserveSelection} onClick={onBullet} className={buttonClass} title="Bullet list" aria-label="Bullet list">
-        • List
-      </button>
-      <button type="button" onMouseDown={preserveSelection} onClick={onNumbered} className={buttonClass} title="Numbered list" aria-label="Numbered list">
-        1. List
-      </button>
-      <button type="button" onMouseDown={preserveSelection} onClick={onLink} className={buttonClass} title="Insert link" aria-label="Insert link">
-        Link
-      </button>
-
-      <span className="mx-1 h-5 w-px bg-slate-300" aria-hidden="true" />
+      <div className="mx-1 h-6 w-px bg-surface-variant" aria-hidden="true" />
 
       <button
         type="button"
         onMouseDown={preserveSelection}
-        onClick={onClear}
-        className={`${buttonClass} text-red-600 hover:bg-red-50`}
-        title="Clear editor"
-        aria-label="Clear editor"
+        onClick={onBullet}
+        className={buttonClass}
+        title="Bullet list"
+        aria-label="Bullet list"
       >
-        Clear
+        <Icon name="format_list_bulleted" />
+      </button>
+      <button
+        type="button"
+        onMouseDown={preserveSelection}
+        onClick={onNumbered}
+        className={buttonClass}
+        title="Numbered list"
+        aria-label="Numbered list"
+      >
+        <Icon name="format_list_numbered" />
+      </button>
+      <button type="button" onMouseDown={preserveSelection} onClick={onLink} className={buttonClass} title="Insert link" aria-label="Insert link">
+        <Icon name="link" />
       </button>
     </div>
   );

@@ -204,7 +204,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
         notify();
       }}
       data-placeholder={placeholder}
-      className="min-h-[280px] w-full whitespace-pre-wrap rounded-lg border border-slate-300 bg-white p-4 text-slate-900 leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500 empty:before:text-slate-400 empty:before:content-[attr(data-placeholder)] [&_a]:text-emerald-700 [&_a]:underline"
+      className="h-full min-h-[420px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-upwork-green empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-upwork-green [&_a]:underline"
     />
   );
 });
