@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import SiteNavBar from "@/components/SiteNavBar";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -30,7 +31,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..0&display=swap"
         />
       </head>
-      <body className={`${poppins.variable} antialiased`}>{children}</body>
+      <body className={`${poppins.variable} antialiased`}>
+        {/* Rendered once here, outside both pages, so it stays mounted (no
+            resize/flash) when navigating between / and /editor. See
+            SiteNavBar.tsx for why. */}
+        <SiteNavBar />
+        {children}
+      </body>
     </html>
   );
 }

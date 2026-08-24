@@ -1,25 +1,34 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Link from 'next/link';
-import Editor, { type EditorHandle } from './Editor';
+import Editor, { type ActiveFormats, type EditorHandle } from './Editor';
 import Toolbar from './Toolbar';
 import PreviewPane from './PreviewPane';
 import CopyButton from './CopyButton';
 import Icon from './Icon';
-import Logo from './Logo';
 import { convertEditorHtmlToUpworkText } from '@/lib/formatConverter';
 
 /**
  * The full /editor workspace. Deliberately locked to exactly 100vh with no
- * page-level scrolling: the header and instruction bar take only the height
- * their content needs (shrink-0), and the editor/preview panels below them
- * absorb all remaining space (flex-1 min-h-0) and scroll internally instead
- * of pushing the page taller.
+ * page-level scrolling. The nav bar itself is NOT rendered here — it's
+ * rendered once in the root layout (see SiteNavBar.tsx) so it stays mounted
+ * across navigation instead of unmounting/remounting per page. This
+ * component only reserves a spacer the same height as that fixed bar, then
+ * the instruction bar and toolbar row take only the height their content
+ * needs (shrink-0), and the editor/preview panels below them absorb all
+ * remaining space (flex-1 min-h-0) and scroll internally instead of pushing
+ * the page taller.
  */
 export default function FormatterApp() {
   const editorRef = useRef<EditorHandle>(null);
   const [convertedText, setConvertedText] = useState('');
+  const [activeFormats, setActiveFormats] = useState<ActiveFormats>({
+    bold: false,
+    italic: false,
+    underline: false,
+    bullet: false,
+    numbered: false,
+  });
 
   const handleEditorChange = (html: string) => {
     setConvertedText(convertEditorHtmlToUpworkText(html));
@@ -38,19 +47,10 @@ export default function FormatterApp() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-surface">
-      {/* Minimal nav — natural height only */}
-      <header className="shrink-0 border-b border-outline-variant bg-surface-container-lowest">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Logo />
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
-          >
-            <Icon name="arrow_back" className="text-[18px]" />
-            Back to Home
-          </Link>
-        </div>
-      </header>
+      {/* Spacer for the fixed NavBar rendered in the root layout (same h-16
+          it renders at) — keeps the rest of this flex column starting right
+          below it instead of being covered by it. */}
+      <div className="h-16 shrink-0" aria-hidden="true" />
 
       {/* Instruction bar — natural height only */}
       <div className="shrink-0 border-b border-outline-variant bg-surface-container-low px-4 py-2 sm:px-6">
@@ -85,6 +85,7 @@ export default function FormatterApp() {
           onBullet={() => editorRef.current?.exec('insertUnorderedList')}
           onNumbered={() => editorRef.current?.exec('insertOrderedList')}
           onLink={handleLink}
+          active={activeFormats}
         />
         <div className="flex items-center gap-4">
           <button
@@ -107,6 +108,7 @@ export default function FormatterApp() {
             <Editor
               ref={editorRef}
               onChange={handleEditorChange}
+              onSelectionChange={setActiveFormats}
               placeholder="Type or paste your text — select it and use the toolbar, or type **bold**, _italic_, ~underline~, '- ' or '1. '…"
             />
           </div>

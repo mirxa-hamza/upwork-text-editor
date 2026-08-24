@@ -43,11 +43,20 @@
 
 html {
   scroll-behavior: smooth;
+  /* The landing page scrolls (taller than the viewport) and shows a
+     scrollbar; /editor is intentionally locked to exactly 100vh and never
+     scrolls. Without reserving the gutter, the scrollbar appearing/
+     disappearing between the two shifts the whole viewport a few pixels
+     horizontally — visible as the fixed nav bar "jumping" on navigation. */
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  /* Poppins, applied once here so every page/component inherits it by
+     default without needing a font-sans utility class everywhere. */
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Consistent default rendering for Material Symbols; individual icons can

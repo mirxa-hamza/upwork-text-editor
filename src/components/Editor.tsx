@@ -5,6 +5,7 @@ import { matchInlineShortcut, matchBlockShortcut } from '@/lib/markdownShortcuts
 
 const BLOCK_TAG_NAMES = new Set(['DIV', 'P', 'LI']);
 const TAG_TO_COMMAND: Record<'b' | 'i' | 'u', string> = { b: 'bold', i: 'italic', u: 'underline' };
+const INLINE_COMMANDS = new Set(['bold', 'italic', 'underline']);
 
 function closestBlockElement(node: Node, root: HTMLElement): HTMLElement | null {
   let el = node.parentElement;
@@ -15,18 +16,18 @@ function closestBlockElement(node: Node, root: HTMLElement): HTMLElement | null 
   return el === root ? root : null;
 }
 
-// /**
-//  * Runs right after every keystroke. Detects the two Markdown-style
-//  * shortcuts this editor supports — **bold**/_italic_/~underline~ inline,
-//  * and "- "/"* "/"1. " at the very start of a line — and, on a match,
-//  * replaces the typed delimiters with real formatting (a <b>/<i>/<u>
-//  * element, or a native list via execCommand). The actual pattern matching
-//  * lives in markdownShortcuts.ts and is unit-tested there; this function is
-//  * just the DOM glue, which needs a browser to test.
-//  *
-//  * Returns true if it changed anything (caller re-syncs preview state either
-//  * way, but this is useful for callers that want to know).
-//  */
+/**
+ * Runs right after every keystroke. Detects the two Markdown-style
+ * shortcuts this editor supports — **bold** / _italic_/~underline~ inline,
+ * and "- "/"* "/"1. " at the very start of a line — and, on a match,
+ * replaces the typed delimiters with real formatting (a <b>/<i>/<u>
+ * element, or a native list via execCommand). The actual pattern matching
+ * lives in markdownShortcuts.ts and is unit-tested there; this function is
+ * just the DOM glue, which needs a browser to test.
+ *
+ * Returns true if it changed anything (caller re-syncs preview state either
+ * way, but this is useful for callers that want to know).
+ */
 function applyMarkdownShortcuts(root: HTMLElement): boolean {
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0 || !selection.isCollapsed) return false;
@@ -106,12 +107,45 @@ export type EditorHandle = {
   getHtml: () => string;
 };
 
+/** Which formatting commands are "on" for the current selection/caret — drives the toolbar's active-button highlighting. */
+export type ActiveFormats = {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  bullet: boolean;
+  numbered: boolean;
+};
+
+const NO_ACTIVE_FORMATS: ActiveFormats = {
+  bold: false,
+  italic: false,
+  underline: false,
+  bullet: false,
+  numbered: false,
+};
+
+function readActiveFormats(): ActiveFormats {
+  try {
+    return {
+      bold: document.queryCommandState('bold'),
+      italic: document.queryCommandState('italic'),
+      underline: document.queryCommandState('underline'),
+      bullet: document.queryCommandState('insertUnorderedList'),
+      numbered: document.queryCommandState('insertOrderedList'),
+    };
+  } catch {
+    return NO_ACTIVE_FORMATS;
+  }
+}
+
 type EditorProps = {
   onChange: (html: string) => void;
+  /** Reports which formats are active at the current caret/selection, so the toolbar can highlight matching buttons. */
+  onSelectionChange?: (formats: ActiveFormats) => void;
   placeholder?: string;
 };
 
-const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange, placeholder }, ref) {
+const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange, onSelectionChange, placeholder }, ref) {
   const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -126,21 +160,76 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
     }
   }, []);
 
+  useEffect(() => {
+    // Selection can change without any input event (arrow keys, clicking to
+    // a new spot, selecting with the mouse) — listen document-wide and
+    // filter to selections inside this editor, so the toolbar's active
+    // state always matches wherever the caret actually is.
+    const handleSelectionChange = () => {
+      const root = divRef.current;
+      const selection = window.getSelection();
+      if (!root || !selection || selection.rangeCount === 0) return;
+      if (!root.contains(selection.anchorNode)) return;
+      onSelectionChange?.(readActiveFormats());
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, [onSelectionChange]);
+
   const notify = () => onChange(divRef.current?.innerHTML ?? '');
+
+  const reportActiveFormats = () => {
+    const root = divRef.current;
+    if (!root) return;
+    const selection = window.getSelection();
+    // Only report state when the selection is actually inside this editor —
+    // queryCommandState reflects whatever's focused document-wide, so a
+    // stray call while focus is elsewhere would show a stale/wrong state.
+    if (!selection || selection.rangeCount === 0 || !root.contains(selection.anchorNode)) return;
+    onSelectionChange?.(readActiveFormats());
+  };
 
   const handleInput = () => {
     const root = divRef.current;
     if (root) applyMarkdownShortcuts(root);
     notify();
+    reportActiveFormats();
   };
 
   // Shared by the imperative `exec` handle and the Ctrl/Cmd+B/I/U keyboard
   // shortcuts below, so both paths run the exact same focus/execCommand/sync
   // sequence.
   const runCommand = (command: string, value?: string) => {
-    divRef.current?.focus();
+    const root = divRef.current;
+    root?.focus();
+
+    const selection = window.getSelection();
+    const hadRangeSelection = !!selection && !selection.isCollapsed;
+
     document.execCommand(command, false, value);
+
+    if (hadRangeSelection && INLINE_COMMANDS.has(command)) {
+      // The user selected text and pressed Bold/Italic/Underline (toolbar or
+      // Ctrl/Cmd+B/I/U): format *only* that selection, then collapse the
+      // caret to the end of it so typing afterwards comes out plain. Left
+      // alone, a caret sitting right at the edge of the freshly-formatted
+      // run is a boundary Chrome resolves ambiguously and keeps "sticking"
+      // to the format — the same issue fixed for Markdown-shortcut typing
+      // below, generalized here to the toolbar/keyboard-shortcut path.
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        if (document.queryCommandState(command)) {
+          document.execCommand(command);
+        }
+      }
+    }
+
     notify();
+    reportActiveFormats();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -206,6 +295,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
     clear: () => {
       if (divRef.current) divRef.current.innerHTML = '';
       notify();
+      onSelectionChange?.(NO_ACTIVE_FORMATS);
     },
     getHtml: () => divRef.current?.innerHTML ?? '',
   }));
@@ -217,6 +307,10 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
       suppressContentEditableWarning
       onInput={handleInput}
       onKeyDown={handleKeyDown}
+      onKeyUp={reportActiveFormats}
+      onMouseUp={reportActiveFormats}
+      onFocus={reportActiveFormats}
+      onBlur={() => onSelectionChange?.(NO_ACTIVE_FORMATS)}
       onPaste={(e) => {
         // Always paste as plain text. The whole point of this tool is that
         // *this* toolbar controls formatting — letting Word/Google Docs

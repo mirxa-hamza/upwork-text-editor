@@ -214,10 +214,10 @@ page for actually doing the work.
   and renders `FormatterApp`. `FormatterApp.tsx` was rewritten in place (same filename/export,
   so no orphaned file) to be the entire workspace rather than a card on the landing page:
   - **Strict 100vh, no page scroll**: outer wrapper is `flex h-screen flex-col overflow-hidden`.
-  - **Fixed-height rows** (`shrink-0`): a minimal header (wordmark + a "Back to Home" link to
-    `/`), an instruction bar spelling out both the keyboard shortcuts and the Markdown-typing
-    shortcuts, and the toolbar row (formatting buttons + Clear/Copy) — each sized to its
-    content only.
+  - **Fixed-height rows** (`shrink-0`): the same `NavBar` used on the landing page (see §5.4
+    for why it's the *same* component rather than a lookalike header), an instruction bar
+    spelling out both the keyboard shortcuts and the Markdown-typing shortcuts, and the
+    toolbar row (formatting buttons + Clear/Copy) — each sized to its content only.
   - **Flexible dual panel**: the Editor/Preview row is `flex flex-1 min-h-0` (`flex-col` on
     mobile, `md:flex-row` on desktop, divided by a border either way) so it absorbs all
     leftover height below the fixed rows. Each panel is itself `flex flex-1 min-h-0 flex-col`
@@ -230,6 +230,56 @@ page for actually doing the work.
   - `Logo.tsx` switched from a same-page `href="#top"` anchor to a real `next/link` to `/`, and
     `NavBar.tsx` / `Footer.tsx`'s "Editor" links now point at `/editor` instead of `#formatter`
     — all of these needed updating once the editor became a real separate route.
+
+### 5.4 Shared NavBar on `/editor` (added after user feedback, two passes)
+
+The first version of the split gave `/editor` its own small header (wordmark + a "Back to
+Home" link, `h-14`) instead of reusing `NavBar`. On review this made the header visibly
+resize/restyle the instant you opened the editor — not the intended effect.
+
+**First pass** (not quite sufficient on its own): had both pages render the exact same
+`NavBar` component, differing only in its call-to-action.
+
+- **`NavBar.tsx`** gained a `variant?: 'landing' | 'editor'` prop (default `'landing'`).
+  Everything else — the logo, the `Why Format`/`How It Works`/`FAQ` links, the "Nothing leaves
+  your browser" badge, the `h-16` height, the fixed positioning — is identical between
+  variants. Only the right-hand CTA button changes: `variant="landing"` shows **"Open
+  Editor"** linking to `/editor`; `variant="editor"` shows **"Back to Home"** linking to `/`.
+- `page.tsx` rendered `<NavBar variant="landing" />` and `FormatterApp.tsx` rendered
+  `<NavBar variant="editor" />` — each page still mounted its *own instance* of the component.
+
+This got the two bars pixel-identical in isolation, but the user reported the nav still
+visibly changed on navigation. Root cause: `/` and `/editor` are two different `page.tsx`
+files, so navigating between them unmounts the landing page's `NavBar` instance and mounts a
+brand-new one inside `FormatterApp` — even with identical markup, that's a real
+unmount+remount, which can flash. On top of that, `/` is tall enough to need a page scrollbar
+while `/editor` is deliberately locked to exactly `100vh` and never scrolls — the scrollbar
+appearing/disappearing between the two pages shifts the entire viewport a few pixels
+horizontally, which reads as the fixed, full-width nav bar "jumping."
+
+**Second pass** (the actual fix) — stopped rendering `NavBar` from either page and instead
+render it exactly once, in the root layout, so it's a single persistent element across
+navigation rather than two separate instances:
+
+- New **`SiteNavBar.tsx`** (`'use client'`, needs `usePathname()` from `next/navigation`):
+  reads the current route and renders `<NavBar variant={pathname.startsWith('/editor') ?
+  'editor' : 'landing'} />`. This is the one piece of nav-related logic that has to be
+  route-aware.
+- **`layout.tsx`** renders `<SiteNavBar />` once, directly in `<body>`, above `{children}`.
+  Next's App Router keeps a layout mounted across client-side navigations between routes it
+  wraps and only swaps out `children` — since both `/` and `/editor` sit under this one root
+  layout with no nested layout in between, `SiteNavBar`/`NavBar` now never unmounts when
+  moving between them.
+- `page.tsx` and `FormatterApp.tsx` no longer import or render `NavBar` themselves.
+  `FormatterApp.tsx` keeps its `shrink-0` spacer `div` (same `h-16` as the nav bar) — still
+  needed because `NavBar` is `position: fixed` and therefore outside the normal document flow
+  regardless of which component renders it; without the spacer the instruction bar underneath
+  would sit behind it, and the spacer is what keeps the `h-screen` flex column's strict
+  no-page-scroll layout (§5.3) starting exactly where the fixed bar ends.
+- **`globals.css`** also gained `scrollbar-gutter: stable` on `html`, so the browser reserves
+  scrollbar space on every page regardless of whether that page's content actually needs to
+  scroll — removing the remaining source of a viewport-width (and therefore nav-bar-width)
+  shift between the scrollable landing page and the fixed-height editor page.
 
 ## 6. Editor behavior
 
@@ -321,6 +371,47 @@ Design:
   Enter-to-continue-a-list behavior don't guarantee the list element is always an immediate
   child of the editor root.
 
+### 6.3 Toolbar active-state highlighting + selection-only formatting (added per user request)
+
+Two related requests: (1) the toolbar should show which formats are "on" wherever the caret
+or selection currently is — same idea as Word/Google Docs highlighting the Bold button when
+your cursor sits inside bold text — and (2) selecting text and pressing Bold (toolbar click
+or Ctrl/Cmd+B) should format only that selection, then resume plain typing afterward, not
+carry bold into whatever's typed next.
+
+- **Active-state tracking**: `Editor.tsx` exports a new `ActiveFormats` type (`{bold, italic,
+  underline, bullet, numbered}`) and a `readActiveFormats()` helper that calls
+  `document.queryCommandState('bold' | 'italic' | 'underline' | 'insertUnorderedList' |
+  'insertOrderedList')` — the same native API already used elsewhere in this file to detect
+  the sticky-formatting boundary (§6.1). `Editor` takes a new `onSelectionChange?: (formats:
+  ActiveFormats) => void` prop and calls it: on every keystroke (`onInput`/`onKeyUp`), on
+  mouse-driven selection changes (`onMouseUp`), on focus, and via a document-wide
+  `selectionchange` listener (needed because selection can change with no input event at all,
+  e.g. arrow keys) — each guarded to only fire when the selection is actually inside this
+  editor, since `queryCommandState` reflects whatever's focused document-wide. On blur it
+  reports all-false, so the toolbar doesn't show a stale "active" state once focus leaves the
+  editor (clicking a toolbar button doesn't trigger this, since `Toolbar.tsx`'s existing
+  `onMouseDown` → `preventDefault()` already stops those clicks from blurring the editor).
+- **`FormatterApp.tsx`** holds an `activeFormats` state, passes `onSelectionChange`
+  (`setActiveFormats`) to `Editor` and `active={activeFormats}` down to `Toolbar`.
+- **`Toolbar.tsx`** takes the new `active: ActiveFormats` prop; each of the five toggleable
+  buttons (Bold/Italic/Underline/Bullet/Numbered — Link is a one-shot action, not a toggle, so
+  it's excluded) renders `bg-brand text-on-brand` instead of its default hover-only styling
+  when its format is active, plus `aria-pressed` for screen readers.
+- **Selection-only formatting fix, generalized**: §6.1 already fixed this for the
+  Markdown-shorthand path (`**bold**` auto-converting). The same "sticky caret" root cause
+  applies to the toolbar/keyboard path too: select text, click Bold, and a caret later placed
+  right at the edge of that now-bold run is a boundary Chrome resolves ambiguously by default,
+  continuing bold into new typing. `runCommand()` (shared by the toolbar's `exec` handle and
+  the Ctrl/Cmd+B/I/U handler) now checks, before running the command, whether the current
+  selection is a real range (not just a collapsed caret). If so — meaning the user selected
+  text and is formatting it, rather than toggling a style on for future typing — it collapses
+  the selection to the end of the newly-formatted run immediately afterward and, exactly as in
+  §6.1, toggles the command off again if `queryCommandState` still reports it "on" for that
+  caret position. Toggling Bold with **nothing selected** (the normal "start typing bold from
+  here" gesture) is left untouched, since that's the one case where continuing the format into
+  new typing is the intended behavior.
+
 ## 7. Verification plan (maps to the assignment's "Done When" list)
 
 1. **Unit tests** (`src/lib/formatConverter.test.ts`, run via `npx tsx`) — deterministic
@@ -361,6 +452,14 @@ Design:
    and `markdownShortcuts.test.ts` re-run afterward (still 44/44 passing) to confirm none of
    this touched the pure conversion/shortcut logic. Delivered as updates to the files already
    on disk plus the two new route files.
+10. **(Follow-up, §6.3)** Toolbar active-state highlighting + selection-only formatting fix:
+    `Editor.tsx` gained `ActiveFormats`/`readActiveFormats()`/the `onSelectionChange` prop and
+    the generalized sticky-caret fix in `runCommand()`; `Toolbar.tsx` gained the `active` prop
+    and per-button highlight styling; `FormatterApp.tsx` wired the two together with new state.
+    Also made Poppins explicit on `body` in `globals.css` (`font-family: var(--font-sans), ...`)
+    so it's guaranteed to apply everywhere rather than relying on Tailwind's preflight picking
+    up `--font-sans` implicitly. `formatConverter.test.ts`/`markdownShortcuts.test.ts` re-run
+    again afterward, still 44/44.
 
 ## 9. Explicitly out of scope (per assignment's "Not Needed")
 

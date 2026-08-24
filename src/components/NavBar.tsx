@@ -8,7 +8,12 @@ const NAV_LINKS = [
   { href: '/#faq', label: 'FAQ' },
 ];
 
-export default function NavBar() {
+type NavBarProps = {
+  /** 'landing' (default) shows the "Open Editor" CTA; 'editor' swaps it for "Back to Home" — everything else (size, links, badge) stays identical so the bar doesn't visibly change between pages. */
+  variant?: 'landing' | 'editor';
+};
+
+export default function NavBar({ variant = 'landing' }: NavBarProps) {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-outline-variant bg-surface-container-lowest">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -34,12 +39,22 @@ export default function NavBar() {
             <Icon name="lock" className="text-[16px] text-brand" />
             Nothing leaves your browser
           </div>
-          <Link
-            href="/editor"
-            className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
-          >
-            Open Editor
-          </Link>
+          {variant === 'editor' ? (
+            <Link
+              href="/"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
+            >
+              <Icon name="arrow_back" className="text-[18px]" />
+              Back to Home
+            </Link>
+          ) : (
+            <Link
+              href="/editor"
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-4 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark"
+            >
+              Open Editor
+            </Link>
+          )}
         </div>
       </div>
     </header>
