@@ -27,10 +27,6 @@ export default function NavBar() {
           </nav>
         </div>
 
-        {/* No login/accounts in this tool (by design) — a quick reassurance
-            takes the place of a Sign In / CTA button. The editor is right on
-            this page, so there's no separate "Open Editor" button to link
-            to it any more. */}
         <div className="hidden items-center gap-2 rounded-full border border-outline-variant px-3 py-1.5 text-xs font-medium text-on-surface-variant sm:flex">
           <Icon name="lock" className="text-[16px] text-brand" />
           Nothing leaves your browser

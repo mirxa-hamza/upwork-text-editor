@@ -43,37 +43,37 @@ export default function FormatterApp() {
   };
 
   return (
-    <section id="editor" className="scroll-mt-20">
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col overflow-hidden rounded-xl bg-surface-elevated shadow-xl">
-          {/* Toolbar row */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-variant bg-surface-container-lowest px-4 py-3 sm:px-6">
-            <Toolbar
-              onBold={() => editorRef.current?.exec('bold')}
-              onItalic={() => editorRef.current?.exec('italic')}
-              onUnderline={() => editorRef.current?.exec('underline')}
-              onBullet={() => editorRef.current?.exec('insertUnorderedList')}
-              onNumbered={() => editorRef.current?.exec('insertOrderedList')}
-              onLink={handleLink}
-              active={activeFormats}
-            />
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={handleClear}
-                className="flex items-center gap-1.5 text-sm font-medium text-on-surface-variant transition-colors hover:text-error"
-              >
-                <Icon name="delete" className="text-[18px]" />
-                Clear
-              </button>
-              <CopyButton text={convertedText} />
-            </div>
+    <section id="editor" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+      <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md border border-slate-200">
+        {/* Toolbar row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 sm:px-6">
+          <Toolbar
+            onBold={() => editorRef.current?.exec('bold')}
+            onItalic={() => editorRef.current?.exec('italic')}
+            onUnderline={() => editorRef.current?.exec('underline')}
+            onBullet={() => editorRef.current?.exec('insertUnorderedList')}
+            onNumbered={() => editorRef.current?.exec('insertOrderedList')}
+            onLink={handleLink}
+            active={activeFormats}
+          />
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-red-600"
+            >
+              <Icon name="delete" className="text-[18px]" />
+              Clear
+            </button>
+            <CopyButton text={convertedText} />
           </div>
+        </div>
 
-          {/* Dual panel: editor left, preview right (stacked on mobile) */}
-          <div className="grid grid-cols-1 divide-y divide-surface-variant md:grid-cols-2 md:divide-x md:divide-y-0">
-            <div className="p-3 sm:p-4">
-              <span className="mb-1.5 block text-sm font-semibold text-on-surface-variant">Editor</span>
+        {/* Dual panel: editor left, preview right */}
+        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 min-h-[500px]">
+          <div className="flex-1 flex flex-col p-4">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">Editor</span>
+            <div className="flex-1">
               <Editor
                 ref={editorRef}
                 onChange={handleEditorChange}
@@ -81,39 +81,29 @@ export default function FormatterApp() {
                 placeholder="Type or paste your text — select it and use the toolbar, or type **bold**, _italic_, ~underline~, '- ' or '1. '…"
               />
             </div>
+          </div>
 
-            <div className="bg-surface-container-lowest p-3 sm:p-4">
-              <span className="mb-1.5 block text-sm font-semibold text-on-surface-variant">
-                Preview — this is exactly what pastes into Upwork
-              </span>
+          <div className="flex-1 flex flex-col bg-slate-50 p-4">
+            <span className="mb-2 block text-sm font-semibold text-slate-700">
+              Preview — exactly what pastes into Upwork
+            </span>
+            <div className="flex-1">
               <PreviewPane text={convertedText} />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Instructions — below the editor card, same width as it, one line on desktop */}
-        <div className="mt-4 rounded-lg border border-outline-variant bg-surface-container-low px-4 py-3">
-          <p className="flex flex-nowrap items-center gap-x-2 overflow-x-auto whitespace-nowrap text-xs text-on-surface-variant sm:justify-center">
-            <span className="font-semibold text-on-surface">Shortcuts:</span>
-            <span>
-              <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+B</kbd> bold
-            </span>
-            <span>
-              <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+I</kbd> italic
-            </span>
-            <span>
-              <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+U</kbd> underline
-            </span>
-            <span className="text-on-surface-variant/60">·</span>
-            <span>
-              Or type <code className="rounded bg-surface-container-lowest px-1 py-0.5">**bold**</code>,{' '}
-              <code className="rounded bg-surface-container-lowest px-1 py-0.5">_italic_</code>,{' '}
-              <code className="rounded bg-surface-container-lowest px-1 py-0.5">~underline~</code>,{' '}
-              <code className="rounded bg-surface-container-lowest px-1 py-0.5">- </code> or{' '}
-              <code className="rounded bg-surface-container-lowest px-1 py-0.5">1. </code> as you go
-            </span>
-          </p>
-        </div>
+      {/* Rules / Instructions Bar */}
+      <div className="mt-6 flex flex-row flex-wrap items-center justify-center gap-4 text-sm text-slate-600 px-4 py-3 bg-slate-100 rounded-lg border border-slate-200">
+        <span className="font-semibold text-slate-800">Shortcuts:</span>
+        <span><kbd className="rounded bg-white px-2 py-1 font-mono shadow-sm border border-slate-200">Ctrl+B/I/U</kbd></span>
+        <span className="text-slate-400">|</span>
+        <span>Or type <code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">**bold**</code></span>
+        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">_italic_</code></span>
+        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">~underline~</code></span>
+        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">- list</code></span>
+        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">1. numbered</code></span>
       </div>
     </section>
   );

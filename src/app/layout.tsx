@@ -32,7 +32,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..0&display=swap"
         />
       </head>
-      <body className={`${poppins.variable} antialiased`}>
+      <body className={`${poppins.variable} antialiased bg-slate-50`}>
         {/* Shown immediately on first paint, fades out shortly after — see
             PageLoader.tsx for why this needs its own fixed minimum time
             rather than gating on data that's already there. */}
