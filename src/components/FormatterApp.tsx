@@ -91,9 +91,9 @@ export default function FormatterApp() {
           </div>
         </div>
 
-        {/* Instructions — below the editor card, not above it */}
-        <div className="mx-auto mt-4 max-w-3xl rounded-lg border border-outline-variant bg-surface-container-low px-4 py-3">
-          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-on-surface-variant">
+        {/* Instructions — below the editor card, same width as it, one line on desktop */}
+        <div className="mt-4 rounded-lg border border-outline-variant bg-surface-container-low px-4 py-3">
+          <p className="flex flex-nowrap items-center gap-x-2 overflow-x-auto whitespace-nowrap text-xs text-on-surface-variant sm:justify-center">
             <span className="font-semibold text-on-surface">Shortcuts:</span>
             <span>
               <kbd className="rounded bg-surface-container-lowest px-1.5 py-0.5 font-mono text-[11px] shadow-sm">Ctrl/⌘+B</kbd> bold
@@ -110,9 +110,7 @@ export default function FormatterApp() {
               <code className="rounded bg-surface-container-lowest px-1 py-0.5">_italic_</code>,{' '}
               <code className="rounded bg-surface-container-lowest px-1 py-0.5">~underline~</code>,{' '}
               <code className="rounded bg-surface-container-lowest px-1 py-0.5">- </code> or{' '}
-              <code className="rounded bg-surface-container-lowest px-1 py-0.5">1. </code> as you go. Underline uses a
-              Unicode combining character — always double-check it renders correctly in the specific field you&apos;re
-              pasting into.
+              <code className="rounded bg-surface-container-lowest px-1 py-0.5">1. </code> as you go
             </span>
           </p>
         </div>

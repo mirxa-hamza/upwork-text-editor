@@ -343,6 +343,65 @@ scroll" goal. Trimmed further, purely visual, no formatting behavior touched:
   guarantee zero scrolling on every device), but the whole nav+hero+editor block is now
   meaningfully shorter and should fit without scrolling on typical laptop/desktop viewports.
 
+### 5.7 Hero/editor block fills the full viewport height (added per user feedback)
+
+§5.6 made the block short enough to fit above the fold, but on taller viewports that left
+dead space below it, and the hero's own text felt cramped, and the instructions bar was
+narrower than the editor card and wrapped onto two lines. Fixed all three together, purely
+layout — no formatting behavior touched:
+
+- **`app/page.tsx`**: `Hero` and `FormatterApp` are now wrapped in one
+  `<section className="flex min-h-[calc(100vh-4rem)] flex-col justify-center gap-10 ...">`
+  instead of sitting back-to-back with no shared container. `min-h-[calc(100vh-4rem)]`
+  (`4rem` = the nav's `h-16`) means this block always claims *at least* the full viewport
+  height below the fixed nav; `flex-col justify-center` centers `Hero`+`FormatterApp` inside
+  that space and turns the `gap-10`/`sm:gap-14` into the space between them — so on a taller
+  screen the extra room becomes breathing space between hero and editor (directly answering
+  "these things should take complete view height") instead of being stranded as blank space
+  underneath the editor before `WhyFormat` starts. On a short viewport the section simply
+  grows past `100vh` (a `min-height`, not a fixed one) and the page scrolls a little, which is
+  the correct fallback rather than clipping content.
+- **`Hero.tsx`**: increased the gap between the headline and the subtext (`mt-2` → `mt-5`/
+  `sm:mt-6`) per request, and dropped its own `pt-8 pb-4` vertical padding — now that the
+  wrapping `section` (above) owns vertical spacing/centering for the whole block, `Hero`
+  keeping its own top/bottom padding on top of that would just double up the spacing.
+- **`FormatterApp.tsx`**'s instructions bar: dropped the `max-w-3xl` (and the now-redundant
+  `mx-auto`) that was keeping it narrower than the editor card above it — both now share the
+  same width, since neither sets its own `max-w` and both sit inside the same `max-w-6xl`
+  wrapper. To actually fit "in a line" at that width, the trailing sentence about the
+  underline combining character was cut (it was the reason the bar wrapped to two lines) and
+  the row itself changed from `flex-wrap` to `flex-nowrap whitespace-nowrap` with
+  `overflow-x-auto` as a safety net on narrow screens, so it stays a single line on desktop
+  widths without silently clipping content on a phone-width viewport.
+- Re-ran both pure-logic test suites afterward — still 44/44. Nothing here touches
+  `formatConverter.ts`, `unicodeMaps.ts`, `markdownShortcuts.ts`, or the toolbar/keyboard
+  logic in `Editor.tsx`.
+
+### 5.8 Loading screen on first render (added per user request)
+
+The user asked for a loading animation while the page is first rendering. This page has no
+real async data-fetching delay to gate a loader on — it's a static/client-side tool — so two
+complementary pieces were added rather than one:
+
+- **`PageLoader.tsx`** (new, `'use client'`): a full-screen branded splash — the app's wordmark
+  icon, a spinning ring (Tailwind's built-in `animate-spin`), and "Loading Upwork Text
+  Formatter…" — rendered directly in `layout.tsx`, above `SiteNavBar`/`{children}`, so it's
+  part of the very first HTML the browser paints (client components still render on the
+  server as part of the initial markup, so there's no flash-of-missing-loader waiting for
+  hydration). Since there's no real work to wait on, it shows for a short fixed window
+  (fades out at 500ms, fully removed at 800ms via `useState`/`setTimeout`) rather than
+  gating on a promise — long enough that the animation is actually visible, short enough not
+  to feel like a fake delay.
+- **`app/loading.tsx`** (new): Next.js App Router's built-in route-loading convention — any
+  file named `loading.tsx` in a route segment is shown automatically by the framework while
+  that segment is being prepared (server-side streaming, or client-side navigation into it).
+  Same visual as `PageLoader.tsx` for consistency, but markup-only (no client-side fade
+  timer) since Next replaces it with the real page automatically the moment it's ready,
+  rather than this component deciding when to disappear.
+- Both are purely presentational additions — no changes to `formatConverter.ts`,
+  `unicodeMaps.ts`, `markdownShortcuts.ts`, or `Editor.tsx`'s formatting/toolbar/keyboard
+  logic. Re-ran both pure-logic test suites afterward — still 44/44.
+
 ## 6. Editor behavior
 
 - `contentEditable` div; toolbar buttons call `document.execCommand('bold' | 'italic' |

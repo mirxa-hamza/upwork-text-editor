@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import SiteNavBar from "@/components/SiteNavBar";
+import PageLoader from "@/components/PageLoader";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -32,6 +33,10 @@ export default function RootLayout({
         />
       </head>
       <body className={`${poppins.variable} antialiased`}>
+        {/* Shown immediately on first paint, fades out shortly after — see
+            PageLoader.tsx for why this needs its own fixed minimum time
+            rather than gating on data that's already there. */}
+        <PageLoader />
         {/* Rendered once here, outside both pages, so it stays mounted (no
             resize/flash) when navigating between / and /editor. See
             SiteNavBar.tsx for why. */}
