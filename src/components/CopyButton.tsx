@@ -30,9 +30,9 @@ export default function CopyButton({ text }: CopyButtonProps) {
       type="button"
       onClick={handleCopy}
       disabled={!text}
-      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-brand px-5 text-sm font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-on-surface-variant disabled:shadow-none"
+      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-brand px-4 text-xs font-semibold text-on-brand shadow-sm transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-on-surface-variant disabled:shadow-none"
     >
-      <Icon name={status === 'copied' ? 'check' : 'content_copy'} filled className="text-[18px]" />
+      <Icon name={status === 'copied' ? 'check' : 'content_copy'} filled className="text-[16px]" />
       {label}
     </button>
   );

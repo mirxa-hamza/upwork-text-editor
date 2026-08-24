@@ -8,9 +8,11 @@ import Footer from '@/components/Footer';
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50">
-      <main className="flex flex-col gap-10 py-10 sm:gap-14">
-        <Hero />
-        <FormatterApp />
+      <main className="flex flex-col gap-10 sm:gap-14 pt-20">
+        <section className="flex flex-col justify-start h-[calc(100vh-5rem)] gap-2">
+          <Hero />
+          <FormatterApp />
+        </section>
         <WhyFormat />
         <HowItWorks />
         <Faq />

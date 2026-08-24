@@ -15,7 +15,7 @@ type ToolbarProps = {
   active: ActiveFormats;
 };
 
-const baseButtonClass = 'flex h-9 w-9 items-center justify-center rounded transition-colors';
+const baseButtonClass = 'flex h-8 w-8 items-center justify-center rounded transition-colors';
 const inactiveButtonClass = 'text-on-surface hover:bg-surface-container-high';
 const activeButtonClass = 'bg-brand text-on-brand hover:bg-brand-dark';
 
@@ -43,7 +43,7 @@ export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNum
         aria-label="Bold"
         aria-pressed={active.bold}
       >
-        <Icon name="format_bold" />
+        <Icon name="format_bold" className="text-[18px]" />
       </button>
       <button
         type="button"
@@ -54,7 +54,7 @@ export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNum
         aria-label="Italic"
         aria-pressed={active.italic}
       >
-        <Icon name="format_italic" />
+        <Icon name="format_italic" className="text-[18px]" />
       </button>
       <button
         type="button"
@@ -65,7 +65,7 @@ export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNum
         aria-label="Underline"
         aria-pressed={active.underline}
       >
-        <Icon name="format_underlined" />
+        <Icon name="format_underlined" className="text-[18px]" />
       </button>
 
       <div className="mx-1 h-6 w-px bg-surface-variant" aria-hidden="true" />
@@ -79,7 +79,7 @@ export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNum
         aria-label="Bullet list"
         aria-pressed={active.bullet}
       >
-        <Icon name="format_list_bulleted" />
+        <Icon name="format_list_bulleted" className="text-[18px]" />
       </button>
       <button
         type="button"
@@ -90,10 +90,10 @@ export default function Toolbar({ onBold, onItalic, onUnderline, onBullet, onNum
         aria-label="Numbered list"
         aria-pressed={active.numbered}
       >
-        <Icon name="format_list_numbered" />
+        <Icon name="format_list_numbered" className="text-[18px]" />
       </button>
       <button type="button" onMouseDown={preserveSelection} onClick={onLink} className={buttonClass(false)} title="Insert link" aria-label="Insert link">
-        <Icon name="link" />
+        <Icon name="link" className="text-[18px]" />
       </button>
     </div>
   );

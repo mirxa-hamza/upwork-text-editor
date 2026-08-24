@@ -43,8 +43,20 @@ export default function FormatterApp() {
   };
 
   return (
-    <section id="editor" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-      <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md border border-slate-200">
+    <section id="editor" className="flex-1 min-h-0 flex flex-col w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+      {/* Rules / Instructions Bar */}
+      <div className="mb-4 flex flex-row flex-wrap items-center justify-center gap-3 text-xs text-slate-600 px-3 py-2 bg-slate-100 rounded-md border border-slate-200">
+        <span className="font-semibold text-slate-800">Shortcuts:</span>
+        <span><kbd className="rounded bg-white px-1.5 py-0.5 font-mono shadow-sm border border-slate-200">Ctrl+B/I/U</kbd></span>
+        <span className="text-slate-400">|</span>
+        <span>Or type <code className="rounded bg-white px-1 py-0.5 shadow-sm border border-slate-200">**bold**</code></span>
+        <span><code className="rounded bg-white px-1 py-0.5 shadow-sm border border-slate-200">_italic_</code></span>
+        <span><code className="rounded bg-white px-1 py-0.5 shadow-sm border border-slate-200">~underline~</code></span>
+        <span><code className="rounded bg-white px-1 py-0.5 shadow-sm border border-slate-200">- list</code></span>
+        <span><code className="rounded bg-white px-1 py-0.5 shadow-sm border border-slate-200">1. numbered</code></span>
+      </div>
+
+      <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-xl bg-white shadow-md border border-slate-200">
         {/* Toolbar row */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 sm:px-6">
           <Toolbar
@@ -60,9 +72,9 @@ export default function FormatterApp() {
             <button
               type="button"
               onClick={handleClear}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-red-600"
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-500 transition-colors hover:text-red-600"
             >
-              <Icon name="delete" className="text-[18px]" />
+              <Icon name="delete" className="text-[16px]" />
               Clear
             </button>
             <CopyButton text={convertedText} />
@@ -70,10 +82,10 @@ export default function FormatterApp() {
         </div>
 
         {/* Dual panel: editor left, preview right */}
-        <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200 min-h-[500px]">
-          <div className="flex-1 flex flex-col p-4">
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200">
+          <div className="flex-1 min-h-0 flex flex-col p-4">
             <span className="mb-2 block text-sm font-semibold text-slate-700">Editor</span>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <Editor
                 ref={editorRef}
                 onChange={handleEditorChange}
@@ -83,27 +95,15 @@ export default function FormatterApp() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col bg-slate-50 p-4">
+          <div className="flex-1 min-h-0 flex flex-col bg-slate-50 p-4">
             <span className="mb-2 block text-sm font-semibold text-slate-700">
               Preview — exactly what pastes into Upwork
             </span>
-            <div className="flex-1">
+            <div className="flex-1 min-h-0">
               <PreviewPane text={convertedText} />
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Rules / Instructions Bar */}
-      <div className="mt-6 flex flex-row flex-wrap items-center justify-center gap-4 text-sm text-slate-600 px-4 py-3 bg-slate-100 rounded-lg border border-slate-200">
-        <span className="font-semibold text-slate-800">Shortcuts:</span>
-        <span><kbd className="rounded bg-white px-2 py-1 font-mono shadow-sm border border-slate-200">Ctrl+B/I/U</kbd></span>
-        <span className="text-slate-400">|</span>
-        <span>Or type <code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">**bold**</code></span>
-        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">_italic_</code></span>
-        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">~underline~</code></span>
-        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">- list</code></span>
-        <span><code className="rounded bg-white px-1.5 py-0.5 shadow-sm border border-slate-200">1. numbered</code></span>
       </div>
     </section>
   );

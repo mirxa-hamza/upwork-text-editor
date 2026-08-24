@@ -2,7 +2,6 @@ import Icon from './Icon';
 import Logo from './Logo';
 
 const NAV_LINKS = [
-  { href: '#editor', label: 'Editor' },
   { href: '#why-format', label: 'Why Format' },
   { href: '#how-it-works', label: 'How It Works' },
   { href: '#faq', label: 'FAQ' },
