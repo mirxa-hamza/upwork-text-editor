@@ -1,3 +1,7 @@
+'use client';
+
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="mt-4 w-full rounded-t-[3rem] bg-white px-6 py-12 sm:mt-6 sm:rounded-t-[4rem] sm:px-10 sm:py-14 lg:px-16">
@@ -20,10 +24,10 @@ export default function Footer() {
               Contact us
             </a>
             <ul className="flex flex-col gap-3 text-sm text-slate-600">
-              <li><a href="/about" className="hover:text-slate-900">About</a></li>
-              <li><a href="/guides" className="hover:text-slate-900">Guides</a></li>
-              <li><a href="/privacy" className="hover:text-slate-900">Privacy Policy</a></li>
-              <li><a href="/terms" className="hover:text-slate-900">Terms & Conditions</a></li>
+              <li><Link href="/about" className="hover:text-slate-900">About</Link></li>
+              <li><Link href="/guides" className="hover:text-slate-900">Guides</Link></li>
+              <li><Link href="/privacy" className="hover:text-slate-900">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-slate-900">Terms &amp; Conditions</Link></li>
             </ul>
           </div>
 
@@ -31,10 +35,39 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="font-bold text-slate-900">Links</h3>
             <ul className="flex flex-col gap-3 text-sm text-slate-600">
-              <li><a href="#editor" className="hover:text-slate-900">Editor</a></li>
-              <li><a href="#why-format" className="hover:text-slate-900">Why Format</a></li>
-              <li><a href="#how-it-works" className="hover:text-slate-900">How It Works</a></li>
-              <li><a href="#faq" className="hover:text-slate-900">FAQ</a></li>
+              {/* Use <Link> to satisfy ESLint's no-html-link-for-pages rule,
+                  but override onClick with window.location.href so the browser
+                  does a real navigation to /#section from any page — without
+                  this, Next.js's client router appends the hash to the
+                  current path (e.g. /privacy#editor) instead of going to /. */}
+              <li>
+                <Link
+                  href="/#editor"
+                  onClick={(e) => { e.preventDefault(); window.location.href = '/#editor'; }}
+                  className="hover:text-slate-900 cursor-pointer"
+                >Editor</Link>
+              </li>
+              <li>
+                <Link
+                  href="/#why-format"
+                  onClick={(e) => { e.preventDefault(); window.location.href = '/#why-format'; }}
+                  className="hover:text-slate-900 cursor-pointer"
+                >Why Format</Link>
+              </li>
+              <li>
+                <Link
+                  href="/#how-it-works"
+                  onClick={(e) => { e.preventDefault(); window.location.href = '/#how-it-works'; }}
+                  className="hover:text-slate-900 cursor-pointer"
+                >How It Works</Link>
+              </li>
+              <li>
+                <Link
+                  href="/#faq"
+                  onClick={(e) => { e.preventDefault(); window.location.href = '/#faq'; }}
+                  className="hover:text-slate-900 cursor-pointer"
+                >FAQ</Link>
+              </li>
             </ul>
           </div>
         </div>

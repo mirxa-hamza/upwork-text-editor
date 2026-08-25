@@ -1,10 +1,12 @@
+'use client';
+
 import Icon from './Icon';
 import Logo from './Logo';
 
 const NAV_LINKS = [
-  { href: '#why-format', label: 'Why Format' },
-  { href: '#how-it-works', label: 'How It Works' },
-  { href: '#faq', label: 'FAQ' },
+  { href: '/#why-format', label: 'Why Format' },
+  { href: '/#how-it-works', label: 'How It Works' },
+  { href: '/#faq', label: 'FAQ' },
 ];
 
 export default function NavBar() {
@@ -18,7 +20,8 @@ export default function NavBar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-on-surface-variant transition-colors hover:text-brand"
+                onClick={(e) => { e.preventDefault(); window.location.href = link.href; }}
+                className="text-sm font-medium text-on-surface-variant transition-colors hover:text-brand cursor-pointer"
               >
                 {link.label}
               </a>
