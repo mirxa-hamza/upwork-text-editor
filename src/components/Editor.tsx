@@ -321,7 +321,15 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
         notify();
       }}
       data-placeholder={placeholder}
-      className="h-full min-h-[220px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-brand empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-brand [&_a]:underline [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&_li]:my-0.5"
+      // min-h-0 (not a fixed min-h-[220px]) is deliberate: a fixed minimum
+      // fights the flex-shrink chain this sits inside on short viewports —
+      // the box would render taller than the space actually available and
+      // get hard-clipped by the card's overflow-hidden, which cut off this
+      // element's own rounded bottom corner instead of showing it. Letting
+      // it shrink to whatever height the flex layout actually gives it
+      // keeps all four corners visible; overflow-y-auto still scrolls if
+      // there's more text than fits.
+      className="h-full min-h-0 w-full overflow-y-auto whitespace-pre-wrap rounded-lg border border-surface-variant bg-surface-container-lowest p-4 leading-relaxed text-on-surface focus:outline-none focus:ring-2 focus:ring-brand empty:before:text-on-surface-variant/50 empty:before:content-[attr(data-placeholder)] [&_a]:text-brand [&_a]:underline [&>ul]:list-disc [&>ul]:ml-5 [&>ol]:list-decimal [&>ol]:ml-5 [&_li]:my-0.5"
     />
   );
 });

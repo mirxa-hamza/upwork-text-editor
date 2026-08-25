@@ -11,7 +11,11 @@ type PreviewPaneProps = {
  */
 export default function PreviewPane({ text }: PreviewPaneProps) {
   return (
-    <div className="h-full min-h-[220px] w-full overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-subtle p-4 leading-relaxed text-on-surface">
+    // min-h-0 (not a fixed min-h-[220px]), matching Editor.tsx — a fixed
+    // minimum fights the flex-shrink chain on short viewports and gets
+    // clipped by the card's overflow-hidden, cutting off this element's
+    // own rounded bottom corner. min-h-0 lets it shrink to fit instead.
+    <div className="h-full min-h-0 w-full overflow-y-auto whitespace-pre-wrap rounded-lg bg-surface-subtle p-4 leading-relaxed text-on-surface">
       {text ? (
         text
       ) : (

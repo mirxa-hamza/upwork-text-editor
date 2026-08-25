@@ -65,11 +65,7 @@ export default function About() {
 
             <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">Get in touch</h2>
             <p className="mb-4">
-              Questions, feedback, or something not working right? Reach us at{' '}
-              <a href="mailto:hello@upworkformatter.com" className="font-semibold text-blue-600 hover:text-blue-800">
-                hello@upworkformatter.com
-              </a>{' '}
-              or through{' '}
+              Questions, feedback, or something not working right? Reach us through{' '}
               <a href="https://www.buraq.dev/contact" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-600 hover:text-blue-800">
                 buraq.dev/contact
               </a>

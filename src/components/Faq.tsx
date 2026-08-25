@@ -34,6 +34,26 @@ export const FAQS = [
     question: 'What does this cost?',
     answer: "Nothing — it's free, with no sign-up required.",
   },
+  {
+    question: 'Can you use bold text on an Upwork proposal?',
+    answer:
+      "Yes — but only if something converts it to Unicode characters first. Upwork strips real bold formatting the moment you paste it in, the same way it strips HTML from anything copied out of Word or Google Docs. Select your text, click Bold (or press Ctrl+B), and what pastes into your proposal is a Unicode look-alike Upwork has nothing to strip, because there's no formatting markup attached to it in the first place.",
+  },
+  {
+    question: 'How to underline text in an Upwork message',
+    answer:
+      "Select the text and press Ctrl+U, or click the Underline button in the toolbar. Underline is the one exception among the formatting options — it uses a Unicode combining character rather than a substituted letterform, which is why it can render slightly differently across fonts. Always check the preview pane before pasting to confirm it looks right in the specific field you're using.",
+  },
+  {
+    question: 'Why does Upwork remove formatting from cover letters?',
+    answer:
+      "Upwork's proposal, job post, and message fields are plain text by design — a common, sensible security and consistency measure for input fields across the web, not something specific to Upwork treating freelancers unfairly. Any HTML or rich-text markup describing \"this word is bold\" gets stripped on paste, leaving just the plain characters behind with no styling attached to them.",
+  },
+  {
+    question: 'How to make Upwork proposals stand out',
+    answer:
+      "Formatting is one of the fastest wins: bold the skills, numbers, or deadline a client should catch in a two-second skim, turn your deliverables into a bulleted list instead of a paragraph, and use a short underlined label to break a longer proposal into sections. None of that requires new content — just structure that makes what you've already written easier to read.",
+  },
 ];
 
 export default function Faq() {

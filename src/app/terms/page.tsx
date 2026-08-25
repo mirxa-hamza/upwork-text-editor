@@ -61,7 +61,16 @@ export default function TermsAndConditions() {
 
             <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">6. Contact Information</h2>
             <p className="mb-4">
-              If you have any questions about these Terms, please contact us at hello@upworkformatter.com.
+              If you have any questions about these Terms, please{' '}
+              <a
+                href="https://www.buraq.dev/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-blue-600 hover:text-blue-800"
+              >
+                contact us
+              </a>
+              .
             </p>
           </div>
         </div>

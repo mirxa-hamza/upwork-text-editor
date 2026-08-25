@@ -37,12 +37,32 @@ const FEATURES = [
 export default function WhyFormat() {
   return (
     <section id="why-format" className="scroll-mt-20 mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
-      <Reveal className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-3xl font-bold text-on-surface">Small formatting choices, bigger response rate</h2>
-        <p className="mt-4 text-lg text-on-surface-variant">
-          Clients skim dozens of proposals and messages a day. A wall of plain text is easy to
-          scroll past — a message with a little structure is easy to read and easy to trust.
-        </p>
+      <Reveal className="mx-auto mb-12 max-w-3xl text-center">
+        <h2 className="text-3xl font-bold text-brand">Why You Need an Upwork Text Formatter</h2>
+        <div className="mt-4 space-y-4 text-left text-base leading-relaxed text-on-surface-variant sm:text-lg">
+          <p>
+            Upwork&apos;s proposal and message fields don&apos;t give you a rich text editor —
+            there&apos;s no button for bold, no italics, no bullet list, just a plain textbox
+            that flattens everything you paste into it. If you&apos;ve ever wondered how to bold
+            text in Upwork, or tried to italicize text in an Upwork message only to watch the
+            formatting vanish on paste, you&apos;ve run into this limitation directly: Upwork
+            strips real formatting on purpose, the same way most plain-text fields do.
+          </p>
+          <p>
+            Upwork Text Formatter solves that without needing Upwork to change anything. Select
+            your text, add bullet points to your Upwork proposal, bold the skills or numbers a
+            client should notice first, and copy the result — what pastes in is the same styled
+            text you see in the preview, because it&apos;s built from Unicode characters that
+            already look formatted rather than markup Upwork can strip. It&apos;s the closest
+            thing to an actual Upwork rich text editor you&apos;ll find, minus the account, the
+            plugin, or the browser extension.
+          </p>
+          <p>
+            If you write proposals for a living, this is worth the ten seconds it takes: format
+            text for Upwork clients the way you&apos;d format it anywhere else, and let the
+            structure do some of the work a wall of plain text can&apos;t.
+          </p>
+        </div>
       </Reveal>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
