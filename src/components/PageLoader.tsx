@@ -11,16 +11,21 @@ import Icon from './Icon';
  * animation is actually visible, then fades out on its own.
  *
  * Rendered as a client component directly in the root layout (not behind
- * Suspense), so it's part of the very first HTML the browser paints —
- * no flash, no dependency on data fetching finishing.
+ * Suspense), so it's part of the very first HTML the browser paints — no
+ * flash, no dependency on data fetching finishing. Kept deliberately short
+ * (was 500/800ms): since this overlay is the first full-viewport thing the
+ * browser paints, it's a likely candidate for the page's Largest
+ * Contentful Paint element, and every extra millisecond it's held on
+ * screen is a millisecond the real content (which is already ready) stays
+ * hidden behind it for no reason.
  */
 export default function PageLoader() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setFading(true), 500);
-    const removeTimer = setTimeout(() => setVisible(false), 800);
+    const fadeTimer = setTimeout(() => setFading(true), 200);
+    const removeTimer = setTimeout(() => setVisible(false), 400);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(removeTimer);

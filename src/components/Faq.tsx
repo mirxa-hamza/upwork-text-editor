@@ -1,7 +1,10 @@
 import Icon from './Icon';
 import Reveal from './Reveal';
 
-const FAQS = [
+// Exported so the FAQPage JSON-LD in app/page.tsx can be generated directly
+// from this array — one source of truth, no risk of the structured data
+// drifting out of sync with what's actually shown on the page.
+export const FAQS = [
   {
     question: "Can I just format text normally and paste it into Upwork?",
     answer:

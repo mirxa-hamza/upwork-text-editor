@@ -1,9 +1,19 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 
+// Bumped by hand when this page's content actually changes — not derived
+// from `new Date()`. A dynamic date silently claimed the policy was
+// "updated" on every single visit, which is both inaccurate and something
+// Google explicitly discourages (a last-modified date should reflect a real
+// edit, since it can affect how content is trusted/recrawled).
+const LAST_UPDATED = 'August 25, 2026';
+
 export const metadata = {
-  title: 'Privacy Policy | Upwork Text Formatter',
-  description: 'Privacy Policy for Upwork Text Formatter',
+  title: 'Privacy Policy',
+  description: 'How Upwork Text Formatter handles your data — in short, it stays in your browser.',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPolicy() {
@@ -17,7 +27,7 @@ export default function PrivacyPolicy() {
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-8">Privacy Policy</h1>
           
           <div className="prose prose-slate max-w-none text-slate-700">
-            <p className="mb-4">Last updated: {new Date().toLocaleDateString()}</p>
+            <p className="mb-4">Last updated: {LAST_UPDATED}</p>
             
             <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">1. Information We Do Not Collect</h2>
             <p className="mb-4">
