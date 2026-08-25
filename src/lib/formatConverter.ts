@@ -106,7 +106,120 @@ function parseHtmlFragment(html: string): ElementNode {
 }
 
 // ---------------------------------------------------------------------------
-// 2. HTML tree -> Unicode plain text
+// 2. Markdown-in-plain-text resolver
+// ---------------------------------------------------------------------------
+
+/**
+ * Segments of text produced by splitting on inline markdown delimiters.
+ * Each segment carries the text content and the incremental style it adds.
+ */
+type TextSegment = { text: string; bold: boolean; italic: boolean; underline: boolean };
+
+/**
+ * Splits a plain text string on **bold**, _italic_, and ~underline~ delimiters,
+ * returning an ordered list of segments each tagged with the formatting they
+ * inherited from the delimiter pair.
+ *
+ * Rules (same as markdownShortcuts.ts to stay consistent):
+ * - Content must be non-empty and must not start/end with whitespace.
+ * - The opening delimiter must be at the very start of the string or preceded
+ *   by a whitespace character (no mid-word bold like foo**bar**).
+ * - `**` is matched before `_` so that `**_bold-italic_**` doesn't mis-parse.
+ */
+function splitOnMarkdown(text: string): TextSegment[] {
+  type Delimiter = { delim: string; field: 'bold' | 'italic' | 'underline' };
+  const DELIMITERS: Delimiter[] = [
+    { delim: '**', field: 'bold' },
+    { delim: '_', field: 'italic' },
+    { delim: '~', field: 'underline' },
+  ];
+
+  // Find the leftmost matching delimiter pair in `src` starting at `offset`.
+  function findFirst(
+    src: string,
+    offset: number,
+  ): { start: number; innerStart: number; innerEnd: number; end: number; field: 'bold' | 'italic' | 'underline' } | null {
+    let best: ReturnType<typeof findFirst> = null;
+
+    for (const { delim, field } of DELIMITERS) {
+      let searchFrom = offset;
+      while (searchFrom < src.length) {
+        const openIdx = src.indexOf(delim, searchFrom);
+        if (openIdx === -1) break;
+
+        // Opening delimiter word-boundary check.
+        const charBefore = openIdx > 0 ? src[openIdx - 1] : '';
+        if (charBefore && !/\s/.test(charBefore)) { searchFrom = openIdx + 1; continue; }
+
+        const innerStart = openIdx + delim.length;
+        if (innerStart >= src.length) break;
+        if (/^\s/.test(src[innerStart])) { searchFrom = openIdx + 1; continue; }
+
+        const closeIdx = src.indexOf(delim, innerStart);
+        if (closeIdx === -1) break;
+        if (/\s$/.test(src.slice(innerStart, closeIdx))) { searchFrom = openIdx + 1; continue; }
+        if (closeIdx === innerStart) { searchFrom = openIdx + 1; continue; }
+
+        const candidate = { start: openIdx, innerStart, innerEnd: closeIdx, end: closeIdx + delim.length, field };
+        if (best === null || candidate.start < best.start) best = candidate;
+        break; // earliest open for this delimiter found
+      }
+    }
+    return best;
+  }
+
+  const segments: TextSegment[] = [];
+
+  function recurse(src: string, offset: number, bold: boolean, italic: boolean, underline: boolean): void {
+    let pos = 0;
+    while (pos < src.length) {
+      const match = findFirst(src, pos);
+      if (!match) {
+        segments.push({ text: src.slice(pos), bold, italic, underline });
+        return;
+      }
+      // Plain text before the match.
+      if (match.start > pos) {
+        segments.push({ text: src.slice(pos, match.start), bold, italic, underline });
+      }
+      // Recurse into the matched span with the extra style toggled on.
+      const inner = src.slice(match.innerStart, match.innerEnd);
+      recurse(
+        inner,
+        0,
+        bold || match.field === 'bold',
+        italic || match.field === 'italic',
+        underline || match.field === 'underline',
+      );
+      pos = match.end;
+    }
+  }
+
+  recurse(text, 0, false, false, false);
+  return segments;
+}
+
+/**
+ * Converts a plain-text string (from the editor's text nodes) to Unicode,
+ * resolving **bold**, _italic_, and ~underline~ markdown delimiters AND
+ * combining the result with any style already inherited from parent HTML
+ * elements (e.g. the text sits inside a `<b>` tag).
+ */
+function applyMarkdownToText(text: string, inheritedStyle: InlineStyle): string {
+  const segments = splitOnMarkdown(text);
+  return segments
+    .map(({ text: seg, bold, italic, underline }) =>
+      styleText(seg, {
+        bold: inheritedStyle.bold || bold,
+        italic: inheritedStyle.italic || italic,
+        underline: inheritedStyle.underline || underline,
+      }),
+    )
+    .join('');
+}
+
+// ---------------------------------------------------------------------------
+// 3. HTML tree -> Unicode plain text
 // ---------------------------------------------------------------------------
 
 const BOLD_TAGS = new Set(['b', 'strong']);
@@ -130,7 +243,9 @@ function normalizeWhitespace(raw: string): string {
 function renderInlineChildren(nodes: Node[], style: InlineStyle): string {
   let out = '';
   for (const node of nodes) {
-    out += node.type === 'text' ? styleText(normalizeWhitespace(node.value), style) : renderInlineNode(node, style);
+    out += node.type === 'text'
+      ? applyMarkdownToText(normalizeWhitespace(node.value), style)
+      : renderInlineNode(node, style);
   }
   return out;
 }
@@ -190,7 +305,7 @@ function renderBlockChildren(nodes: Node[], style: InlineStyle): string[] {
 
   for (const node of nodes) {
     if (node.type === 'text') {
-      current += styleText(normalizeWhitespace(node.value), style);
+      current += applyMarkdownToText(normalizeWhitespace(node.value), style);
       if (node.value.trim()) hasContent = true;
       continue;
     }

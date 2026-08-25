@@ -312,9 +312,9 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
       onFocus={reportActiveFormats}
       onBlur={() => onSelectionChange?.(NO_ACTIVE_FORMATS)}
       onPaste={(e) => {
-        // Always paste as plain text. The whole point of this tool is that
-        // *this* toolbar controls formatting — letting Word/Google Docs
-        // formatting leak in through paste would defeat the purpose.
+        // Always paste as plain text so the editor shows the raw text
+        // (including **bold** markers) exactly as typed. The Preview pane's
+        // formatConverter handles converting **...**/_..._ /~...~ to Unicode.
         e.preventDefault();
         const text = e.clipboardData.getData('text/plain');
         document.execCommand('insertText', false, text);
