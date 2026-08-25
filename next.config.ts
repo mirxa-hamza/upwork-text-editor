@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 // Baseline response headers — none of these were set before (a default
 // Next.js app ships with none of them). They don't affect SEO ranking
@@ -22,6 +23,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Pin the file-tracing and Turbopack roots to THIS project directory so
+  // Next.js doesn't walk up to the parent folder and pick up a stray
+  // package-lock.json there, which corrupts the routes manifest at runtime
+  // and causes "routesManifest.dataRoutes is not iterable".
+  outputFileTracingRoot: path.resolve(__dirname),
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   async headers() {
     return [
       {
@@ -33,3 +42,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
