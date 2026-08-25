@@ -38,7 +38,7 @@ export default function TermsAndConditions() {
             <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">2. Description of Service</h2>
             <p className="mb-4">
               Upwork Text Formatter is a free web-based utility designed to help freelancers format text for their Upwork proposals and profiles. 
-              The service is provided "as is" and "as available". We do not guarantee that the formatting will always be perfectly translated by Upwork's platform.
+              The service is provided &quot;as is&quot; and &quot;as available&quot;. We do not guarantee that the formatting will always be perfectly translated by Upwork&apos;s platform.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 mt-8 mb-4">3. User Conduct</h2>

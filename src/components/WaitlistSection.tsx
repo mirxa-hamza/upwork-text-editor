@@ -11,10 +11,10 @@ export default function WaitlistSection() {
               <span className="text-lg leading-none">*</span> Early Access
             </div>
             <h2 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-              Have something in mind? <br /> Let's connect.
+              Have something in mind? <br /> Let&apos;s connect.
             </h2>
             <p className="text-lg text-slate-700">
-              Get in early for priority onboarding and founding-member pricing. We're excited to collaborate and build the best tools for you.
+              Get in early for priority onboarding and founding-member pricing. We&apos;re excited to collaborate and build the best tools for you.
             </p>
           </div>
 
