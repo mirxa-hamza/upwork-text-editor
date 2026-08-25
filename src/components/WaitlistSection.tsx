@@ -2,7 +2,7 @@
 
 export default function WaitlistSection() {
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-blue-100 via-blue-100 to-sky-200 px-8 py-16 sm:px-16 sm:py-20">
         <div className="relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-8">
           {/* Left Text */}
