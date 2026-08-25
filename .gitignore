@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+CLAUDE.md
+plan.md
+seo-audit-2026-08-24.md
+seo-review-2026-08-25.md
+
 
 # vercel
 .vercel
