@@ -1,21 +1,32 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { GUIDES } from '@/lib/guides';
+import { pageMetadata } from '@/lib/pageMetadata';
+import { breadcrumbJsonLd } from '@/lib/jsonLd';
 
 const guide = GUIDES.find((g) => g.slug === 'why-formatting-disappears-on-upwork')!;
 const related = GUIDES.filter((g) => g.slug !== guide.slug);
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: guide.title,
   description: guide.description,
-  alternates: {
-    canonical: `/guides/${guide.slug}`,
-  },
-};
+  path: `/guides/${guide.slug}`,
+});
+
+const breadcrumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Guides', path: '/guides' },
+  { name: guide.title, path: `/guides/${guide.slug}` },
+]);
 
 export default function WhyFormattingDisappearsGuide() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <main className="flex-1 pt-20 pb-20 px-6 sm:px-12 lg:px-20">
         <div className="mx-auto max-w-4xl bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-100">
           <Link href="/guides" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-800 mb-8">

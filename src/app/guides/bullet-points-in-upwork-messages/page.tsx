@@ -1,17 +1,17 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { GUIDES } from '@/lib/guides';
+import { pageMetadata } from '@/lib/pageMetadata';
+import { breadcrumbJsonLd } from '@/lib/jsonLd';
 
 const guide = GUIDES.find((g) => g.slug === 'bullet-points-in-upwork-messages')!;
 const related = GUIDES.filter((g) => g.slug !== guide.slug);
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: guide.title,
   description: guide.description,
-  alternates: {
-    canonical: `/guides/${guide.slug}`,
-  },
-};
+  path: `/guides/${guide.slug}`,
+});
 
 const STEPS = [
   {
@@ -40,9 +40,20 @@ const howToJsonLd = {
   })),
 };
 
+const breadcrumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Guides', path: '/guides' },
+  { name: guide.title, path: `/guides/${guide.slug}` },
+]);
+
 export default function BulletPointsGuide() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger

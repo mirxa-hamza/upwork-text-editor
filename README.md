@@ -84,7 +84,16 @@ src/
 
 ## Configuring the production domain
 
-Every SEO-facing URL (canonical links, the sitemap, `robots.txt`, Open Graph/Twitter cards, JSON-LD) is generated from one constant in `src/lib/siteConfig.ts`. Once this is deployed to a real domain, set the `NEXT_PUBLIC_SITE_URL` environment variable in your hosting provider (or edit the fallback string in that file directly) — nothing else needs to change.
+The site is live at **https://upworkformatter.buraq.dev**.
+
+Every SEO-facing URL (canonical links, the sitemap, `robots.txt`, Open Graph/Twitter cards, JSON-LD) is generated from one constant in `src/lib/siteConfig.ts`. To move the site to a different domain, set `NEXT_PUBLIC_SITE_URL` in your hosting provider (it takes precedence) or edit the fallback string in that file — nothing else needs to change.
+
+### Environment variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | No | Overrides the production URL. Defaults to `https://upworkformatter.buraq.dev`. |
+| `GOOGLE_SITE_VERIFICATION` | No | Emits the Search Console `<meta name="google-site-verification">` tag. Unnecessary if the property was verified by DNS record. |
 
 ## Deploying
 

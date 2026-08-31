@@ -1,22 +1,23 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { GUIDES } from '@/lib/guides';
+import { siteConfig } from '@/lib/siteConfig';
+import { pageMetadata } from '@/lib/pageMetadata';
+import { breadcrumbJsonLd } from '@/lib/jsonLd';
 
 const guide = GUIDES.find((g) => g.slug === 'bold-text-in-upwork-proposals')!;
 const related = GUIDES.filter((g) => g.slug !== guide.slug);
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: guide.title,
   description: guide.description,
-  alternates: {
-    canonical: `/guides/${guide.slug}`,
-  },
-};
+  path: `/guides/${guide.slug}`,
+});
 
 const STEPS = [
   {
     name: 'Open the formatter and select your text',
-    text: 'Type your proposal directly into the editor at upworkformatter.com, or paste in a draft you already wrote. Highlight the word or phrase you want to bold.',
+    text: `Type your proposal directly into the editor at ${siteConfig.domain}, or paste in a draft you already wrote. Highlight the word or phrase you want to bold.`,
   },
   {
     name: 'Bold it',
@@ -44,9 +45,20 @@ const howToJsonLd = {
   })),
 };
 
+const breadcrumbs = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'Guides', path: '/guides' },
+  { name: guide.title, path: `/guides/${guide.slug}` },
+]);
+
 export default function BoldTextGuide() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger

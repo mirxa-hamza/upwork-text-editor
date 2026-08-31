@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { pageMetadata } from '@/lib/pageMetadata';
 
 // Bumped by hand when this page's content actually changes — not derived
 // from `new Date()`. A dynamic date silently claimed the terms were
@@ -8,13 +9,11 @@ import Footer from '@/components/Footer';
 // edit, since it can affect how content is trusted/recrawled).
 const LAST_UPDATED = 'August 25, 2026';
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: 'Terms & Conditions',
   description: 'The terms that apply to using Upwork Text Formatter.',
-  alternates: {
-    canonical: '/terms',
-  },
-};
+  path: '/terms',
+});
 
 export default function TermsAndConditions() {
   return (

@@ -31,6 +31,11 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
     },
   },
+  // Only emitted when GOOGLE_SITE_VERIFICATION is set in hosting; harmless
+  // to leave unset if Search Console was verified by DNS record instead.
+  verification: siteConfig.googleSiteVerification
+    ? { google: siteConfig.googleSiteVerification }
+    : undefined,
   // No `images` array here on purpose — app/opengraph-image.tsx is picked
   // up automatically by Next's file-convention metadata resolver and
   // injected into both openGraph.images and twitter.images. Declaring it

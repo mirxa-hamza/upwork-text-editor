@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { pageMetadata } from '@/lib/pageMetadata';
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: 'About',
   description: 'Who built Upwork Text Formatter, and why it exists.',
-  alternates: {
-    canonical: '/about',
-  },
-};
+  path: '/about',
+});
 
 export default function About() {
   return (
