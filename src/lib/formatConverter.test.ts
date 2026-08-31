@@ -124,6 +124,16 @@ test('a lone trailing empty <div><br></div> (common contentEditable artifact) is
   assert.equal(convertEditorHtmlToUpworkText(html), 'hello');
 });
 
+test('one blank line in the editor (<div><br></div> between two paragraphs) stays exactly one blank line in the output', () => {
+  const html = '<div>Para one.</div><div><br></div><div>Para two.</div>';
+  assert.equal(convertEditorHtmlToUpworkText(html), 'Para one.\n\nPara two.');
+});
+
+test('a trailing <br> on a non-empty line does not add a spurious blank line after it', () => {
+  const html = '<div>Hello world<br></div><div>Next line.</div>';
+  assert.equal(convertEditorHtmlToUpworkText(html), 'Hello world\nNext line.');
+});
+
 test('bullet list uses a plain "• " prefix per line', () => {
   const html = '<ul><li>first</li><li>second</li></ul>';
   assert.equal(convertEditorHtmlToUpworkText(html), '• first\n• second');

@@ -303,7 +303,9 @@ function renderBlockChildren(nodes: Node[], style: InlineStyle): string[] {
     hasContent = false;
   };
 
-  for (const node of nodes) {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+
     if (node.type === 'text') {
       current += applyMarkdownToText(normalizeWhitespace(node.value), style);
       if (node.value.trim()) hasContent = true;
@@ -313,7 +315,16 @@ function renderBlockChildren(nodes: Node[], style: InlineStyle): string[] {
     const tag = node.tag;
 
     if (tag === 'br') {
-      flush();
+      // A <br> that is the LAST child of this block is almost always a
+      // contentEditable artifact (browsers append one to keep an empty or
+      // final line focusable/visible), not a deliberate extra line break —
+      // the trailing `flush()` after this loop already terminates the
+      // current line, so honoring this <br> too would double it up (one
+      // blank line in the editor turning into two or three in the output).
+      // A <br> that has more siblings after it (e.g. "Hello<br><br>World")
+      // is a real, deliberate line break and still flushes normally.
+      const isLast = i === nodes.length - 1;
+      if (!isLast) flush();
       continue;
     }
 

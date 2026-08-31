@@ -124,6 +124,24 @@ const NO_ACTIVE_FORMATS: ActiveFormats = {
   numbered: false,
 };
 
+/**
+ * Collapses runs of 2+ blank lines down to a single blank line, and trims
+ * trailing spaces/tabs from each line. Pasted content (from Word, Google
+ * Docs, another Upwork proposal, etc.) very often carries multiple blank
+ * lines between paragraphs; by default we normalize that down to exactly
+ * one blank line so the editor always reflects the actual line breaks the
+ * user sees, matching how manual typing works. The user can still add more
+ * blank lines afterward by pressing Enter themselves.
+ */
+function normalizePastedText(text: string): string {
+  return text
+    .replace(/\r\n?/g, '\n') // normalize CRLF/CR to LF
+    .split('\n')
+    .map((line) => line.replace(/[ \t]+$/, '')) // drop trailing spaces per line
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n'); // 2+ blank lines -> exactly 1 blank line
+}
+
 function readActiveFormats(): ActiveFormats {
   try {
     return {
@@ -316,7 +334,7 @@ const Editor = forwardRef<EditorHandle, EditorProps>(function Editor({ onChange,
         // (including **bold** markers) exactly as typed. The Preview pane's
         // formatConverter handles converting **...**/_..._ /~...~ to Unicode.
         e.preventDefault();
-        const text = e.clipboardData.getData('text/plain');
+        const text = normalizePastedText(e.clipboardData.getData('text/plain'));
         document.execCommand('insertText', false, text);
         notify();
       }}
