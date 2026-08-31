@@ -10,7 +10,7 @@
  * Nothing else in the codebase needs to change.
  */
 export const siteConfig = {
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://upworkformatter.com').replace(/\/+$/, ''),
+  url: (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://upworkformatter.vercel.app').replace(/\/+$/, ''),
   name: 'Upwork Text Formatter',
   title: 'Upwork Text Formatter — Bold Text & Proposal Formatting for Upwork',
   description:

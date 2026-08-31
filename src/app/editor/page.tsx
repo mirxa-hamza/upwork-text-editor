@@ -11,5 +11,5 @@ import { permanentRedirect } from 'next/navigation';
  * indexing signal to the new location instead of continuing to crawl both.
  */
 export default function EditorRedirect() {
-  permanentRedirect('/');
+  permanentRedirect('/#editor');
 }
